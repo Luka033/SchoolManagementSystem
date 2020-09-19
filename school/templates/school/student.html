@@ -1,0 +1,69 @@
+{% extends 'school/main.html' %}
+
+{% block content %}
+
+	<br>
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Student:</h5>
+			<hr>
+			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'course_registration' %}">Add Class</a>
+			<a class="btn btn-outline-danger  btn-sm btn-block" href="">Drop Class</a>
+
+		</div>
+	</div>
+
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Contact Information</h5>
+			<hr>
+			<p>Name: {{student.name}}</p>
+			<p>Date of Birth: {{student.date_of_birth}}</p>
+			<p>Address: {{student.address}}</p>
+			<p>Phone: {{student.phone}}</p>
+			<p>Major: {{student.major}}</p>
+			<p>Minor: {{student.minor}}</p>
+
+		</div>
+	</div>
+
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Completed Courses</h5>
+			<hr>
+			<h1 style="text-align: center;padding: 10px"></h1>
+		</div>
+	</div>
+</div>
+
+
+
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>Course ID</th>
+					<th>Time</th>
+					<th>Units</th>
+					<th>Drop Classes</th>
+				</tr>
+
+				{% for course in courses %}
+					<tr>
+						<td>{{course.course_id}}</td>
+						<td>{{course.date_time_held}}</td>
+						<td>{{course.units}}</td>
+						<td><a class="btn btn-sm btn-danger" href="{% url 'delete_course' course.id %}">Drop</a></td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
