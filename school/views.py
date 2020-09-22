@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import *
 from .forms import CourseForm, StudentForm
+from .filters import CourseFilter
 
 
 # Create your views here.
@@ -40,7 +41,7 @@ def major_course_requirements(request):
 
 
 
-# This section manages creating, updating and deleting STUDENTS
+# This section manages CRUD for STUDENTS
 # =============================================================
 # =============================================================
 def create_student(request):
@@ -79,18 +80,16 @@ def delete_student(request, pk):
     return render(request, 'school/delete_student.html', context)
 
 
-# This section manages creating, updating and deleting COURSES
+# This section manages CRUD for COURSES
 # =============================================================
 # =============================================================
 def create_course(request):
-
     form = CourseForm()
     if request.method == 'POST':
         form = CourseForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('/')
-
 
     context = {'form': form}
     return render(request, 'school/create_form.html', context)
@@ -123,7 +122,14 @@ def delete_course(request, pk):
 
 
 def course_registration(request):
-    # student = Student.objects.get(id=pk)
-    # context = {'student': student}
-    context = {}
+    courses = Course.objects.all()
+
+    my_filter = CourseFilter(request.GET, queryset=courses)
+    courses = my_filter.qs
+
+
+
+    context = {'courses': courses,
+               'filter': my_filter
+               }
     return render(request, 'school/course_registration.html', context)

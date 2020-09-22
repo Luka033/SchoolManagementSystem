@@ -30,7 +30,9 @@ class Course(models.Model):
 
     course_id = models.CharField(max_length=200, null=True)
     schedule_number = models.CharField(max_length=200, null=True)
-    date_time_held = models.CharField(max_length=200, null=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    time = models.CharField(max_length=200, null=True)
     location = models.CharField(max_length=200, null=True, blank=True)
     instructor = models.CharField(max_length=200, null=True, blank=True)
     units = models.CharField(max_length=200, null=True, choices=NUM_UNITS, default='3')
