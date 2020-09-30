@@ -1,0 +1,51 @@
+{% extends 'school/main.html' %}
+
+{% block content %}
+
+
+<br>
+
+<br>
+<div class="row">
+	<div class="col">
+        <h5>STUDENT SEARCH:</h5>
+        <hr>
+		<div class="card card-body">
+			<form method="get">
+			{{filter.form.as_p}}
+		    <button class="btn btn-primary" type="submit">Search</button>
+		  </form>
+		</div>
+	</div>
+
+</div>
+<br>
+
+
+<div class="col-md-12">
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>View Student</th>
+					<th>Name</th>
+					<th>Date of Birth</th>
+					<th>Major</th>
+                    <th>Minor</th>
+				</tr>
+
+				{% for student in all_students %}
+					<tr>
+						<td><a class="btn btn-sm btn-info" href="">View</a></td>
+						<td>{{student.name}}</td>
+						<td>{{student.date_of_birth}}</td>
+						<td>{{student.major}}</td>
+                        <td>{{student.minor}}</td>
+						<td><a class="btn btn-sm btn-info" href="">View Courses</a></td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+
+{% endblock %}

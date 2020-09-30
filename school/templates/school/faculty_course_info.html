@@ -1,0 +1,54 @@
+{% extends 'school/main.html' %}
+
+{% block content %}
+
+
+<br>
+
+<br>
+<div class="row">
+	<div class="col">
+		<div class="card card-body">
+			<form method="get">
+			{{filter.form.as_p}}
+		    <button class="btn btn-primary" type="submit">Search</button>
+		  </form>
+		</div>
+	</div>
+
+</div>
+<br>
+
+
+<div class="col-md-12">
+		<h5>ALL COURSES:</h5>
+		<hr>
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>View Faculty</th>
+					<th>Name</th>
+					<th>Title</th>
+					<th>Office Phone</th>
+					<th>Office Number</th>
+					<th>Department</th>
+                    <th>Classes</th>
+				</tr>
+
+				{% for faculty in faculty_members %}
+					<tr>
+						<td><a class="btn btn-sm btn-info" href="">View</a></td>
+						<td>{{faculty.name}}</td>
+						<td>{{faculty.title}}</td>
+						<td>{{faculty.office_phone}}</td>
+						<td>{{faculty.office_number}}</td>
+                        <td>{{faculty.department}}</td>
+						<td><a class="btn btn-sm btn-info" href="">View Courses</a></td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+
+{% endblock %}

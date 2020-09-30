@@ -38,7 +38,7 @@
 						<td>{{course.time}}</td>
 						<td>{{course.instructor}}</td>
 						<td>{{course.units}}</td>
-						<td><a class="btn btn-sm btn-success" href="">Add</a></td>
+						<td><a class="btn btn-sm btn-success" href="{% url 'add_course' course.id %}">Add</a></td>
 					</tr>
 				{% endfor %}
 

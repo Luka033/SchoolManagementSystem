@@ -8,13 +8,13 @@
 	<div class="col-md-6">
 		<div class="card card-body">
 
-            <p>Are you sure you want to delete {{course}}?</p>
+            <p>Are you sure you want to add {{course}}?</p>
 
-            <form method="POST" action="{% url 'delete_course' course.id %}">
+            <form method="POST" action="{% url 'add_course' course.id %}">
                 {% csrf_token %}
                 <a class="btn btn-warning" href="{% url 'user_page' %}">Cancel</a>
 
-                <input class="btn btn-danger" type="submit" name="Confirm">
+                <input class="btn btn-success" type="submit" name="Confirm">
             </form>
         </div>
 	</div>
@@ -22,5 +22,3 @@
 
 
 {% endblock %}
-
-

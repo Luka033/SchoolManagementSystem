@@ -10,4 +10,18 @@ class CourseFilter(django_filters.FilterSet):
     class Meta:
         model = Course
         fields = '__all__'
-        exclude = ['students', 'start_date', 'end_date', 'time']
+        exclude = ['instructor', 'students', 'start_date', 'end_date', 'time']
+
+
+class FacultyFilter(django_filters.FilterSet):
+    class Meta:
+        model = Faculty
+        fields = '__all__'
+        exclude = ['user', 'office_hours']
+
+
+class StudentFilter(django_filters.FilterSet):
+    class Meta:
+        model = Student
+        fields = '__all__'
+        exclude = ['user', 'notes']
