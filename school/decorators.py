@@ -38,7 +38,7 @@ def admin_only(view_func):
         if group == 'faculty':
             return view_func(request, *args, **kwargs)
         else:
-            return redirect('user_page')
+            return redirect('student_home')
 
 
 

@@ -8,6 +8,7 @@
 <br>
 <div class="row">
 	<div class="col">
+		<h5>FACULTY SEARCH:</h5>
 		<div class="card card-body">
 			<form method="get">
 			{{filter.form.as_p}}
@@ -21,8 +22,6 @@
 
 
 <div class="col-md-12">
-		<h5>ALL COURSES:</h5>
-		<hr>
 		<div class="card card-body">
 			<table class="table table-sm">
 				<tr>
@@ -32,18 +31,16 @@
 					<th>Office Phone</th>
 					<th>Office Number</th>
 					<th>Department</th>
-                    <th>Classes</th>
 				</tr>
 
 				{% for faculty in faculty_members %}
 					<tr>
-						<td><a class="btn btn-sm btn-info" href="">View</a></td>
+						<td><a class="btn btn-sm btn-info" href="{% url 'faculty_details' faculty.id %}">View</a></td>
 						<td>{{faculty.name}}</td>
 						<td>{{faculty.title}}</td>
 						<td>{{faculty.office_phone}}</td>
 						<td>{{faculty.office_number}}</td>
                         <td>{{faculty.department}}</td>
-						<td><a class="btn btn-sm btn-info" href="">View Courses</a></td>
 					</tr>
 				{% endfor %}
 

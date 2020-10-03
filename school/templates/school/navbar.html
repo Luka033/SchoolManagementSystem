@@ -7,22 +7,26 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             {% ifequal user.groups.all.0.name "faculty" %}
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'faculty_home' %}">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'faculty_course_info' %}">Faculty and Course Information</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'electronic_student_record' %}">Electronic Student Record</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'course_grades' %}">Course Grades</a>
-            </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'faculty_home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'faculty_course_info' %}">Faculty and Course Information</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'electronic_student_record' %}">Electronic Student Record</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'course_grades' %}">Course Grades</a>
+                </li>
             {% else %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'course_registration' %}">Course Registration</a>
-            </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'student_home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'course_registration' %}">Course Registration</a>
+                </li>
+
             {% endifequal %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'account' %}">Account Settings</a>

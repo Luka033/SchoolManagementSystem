@@ -1,0 +1,29 @@
+{% extends 'school/main.html' %}
+
+{% block content %}
+
+	<br>
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Course Information</h5>
+			<hr>
+
+			<p>Course ID: {{course.course_id}}</p>
+			<p>Schedule #: {{course.schedule_number}}</p>
+            <p>Instructor: {{course.instructor}}</p>
+			<p>Course Starts: {{course.start_date}}</p>
+			<p>Course Ends: {{course.end_date}}</p>
+			<p>Time: {{course.time}}</p>
+			<p>Location: {{course.location}}</p>
+            <p>Units: {{course.units}}</p>
+            <p>Prerequisites: {{course.prerequisites}}</p>
+
+		</div>
+	</div>
+
+</div>
+
+
+{% endblock %}

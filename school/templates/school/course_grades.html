@@ -2,6 +2,38 @@
 
 {% block content %}
 
-<h3>Course Grades</h3>
+<div class="col-md-12">
+    <div class="card card-body">
+        <table class="table table-sm">
+            <h5>COURSES YOU TEACH</h5>
+
+
+            {% for course, students in students_in_courses.items %}
+            <tr>
+                <td><b>{{ course }}: </b></td>
+                <th>Student Name</th>
+                <th>Grade</th>
+                <th>Notes</th>
+            </tr>
+
+
+            {% for student in students %}
+            <tr>
+				<td></td>
+                <td>{{student.name}}</td>
+                <td>A-F</td>
+                <td>...</td>
+            </tr>
+
+            {% endfor %}
+
+            {% endfor %}
+
+        </table>
+    </div>
+</div>
+
+
+
 
 {% endblock %}

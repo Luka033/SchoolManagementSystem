@@ -90,6 +90,17 @@ def faculty_course_info(request):
 
 
 @login_required(login_url='login')
+def faculty_details(request, pk):
+    faculty = Faculty.objects.get(id=pk)
+    courses = Course.objects.filter(instructor=pk)
+    print(courses)
+
+    context = {'faculty': faculty,
+               'courses': courses}
+    return render(request, 'school/faculty_details.html', context)
+
+
+@login_required(login_url='login')
 def electronic_student_record(request):
     all_students = Student.objects.all()
 
@@ -102,21 +113,29 @@ def electronic_student_record(request):
 
 
 @login_required(login_url='login')
-def student(request, pk):
+def student_details(request, pk):
     student = Student.objects.get(id=pk)
     courses = Course.objects.filter(students=pk)
 
     context = {'student': student,
                'courses': courses
                }
-    return render(request, 'school/student.html', context)
+    return render(request, 'school/student_details.html', context)
 
 
 @login_required(login_url='login')
 def course_grades(request):
     faculty_member = Faculty.objects.get(id=request.user.id)
     courses_teaching = faculty_member.course_set.all()
-    context = {'courses': courses_teaching}
+
+    students_in_courses = {}
+    for i in range(len(courses_teaching)):
+
+        students = courses_teaching[i].students.all()
+        students_in_courses[courses_teaching[i]] = students
+        print(students_in_courses)
+
+    context = {'students_in_courses': students_in_courses}
     return render(request, 'school/course_grades.html', context)
 
 
@@ -137,7 +156,7 @@ def account_settings(request):
 # =============================================================
 # =============================================================
 @login_required(login_url='login')
-def user_page(request):
+def student_home(request):
     id = request.user.student.id
     student = Student.objects.get(id=id)
     courses = Course.objects.filter(students=id)
@@ -145,7 +164,7 @@ def user_page(request):
     context = {'student': student,
                'courses': courses
                }
-    return render(request, 'school/student.html', context)
+    return render(request, 'school/student_details.html', context)
 
 
 @login_required(login_url='login')
@@ -173,99 +192,40 @@ def add_course(request, pk):
 
 
 
-# This section manages Major Requirements
+# This section manages views available for STUDENTS and FACULTY
 # =============================================================
 # =============================================================
 def major_course_requirements(request):
     return render(request, 'school/major_requirements.html')
 
 
-
-
-
-
-# This section manages CRUD for STUDENTS
-# =============================================================
-# =============================================================
 @login_required(login_url='login')
-def create_student(request):
-    form = StudentForm()
-    if request.method == 'POST':
-        form = StudentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/')
-
-    context = {'form': form}
-    return render(request, 'school/create_form.html', context)
-
-
-@login_required(login_url='login')
-def update_student(request, pk):
-    student = Student.objects.get(id=pk)
-    form = StudentForm(instance=student)
-
-    if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
-        if form.is_valid():
-            form.save()
-            return redirect('/')
-    context = {'form': form}
-    return render(request, 'school/create_form.html', context)
-
-
-@login_required(login_url='login')
-def delete_student(request, pk):
-    student = Student.objects.get(id=pk)
-    if request.method == 'POST':
-        student.delete()
-        return redirect('/')
-
-    print("STUDENT IS: ", student)
-    context = {'student': student}
-    return render(request, 'school/delete_student.html', context)
-
-
-# This section manages CRUD for COURSES
-# =============================================================
-# =============================================================
-@login_required(login_url='login')
-def create_course(request):
-    form = CourseForm()
-    if request.method == 'POST':
-        form = CourseForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/')
-
-    context = {'form': form}
-    return render(request, 'school/create_form.html', context)
-
-
-@login_required(login_url='login')
-def update_course(request, pk):
+def course_details(request, pk):
     course = Course.objects.get(id=pk)
-    form = CourseForm(instance=course)
-
-    if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course)
-        if form.is_valid():
-            form.save()
-            return redirect('/')
-
-    context = {'form': form}
-    return render(request, 'school/create_form.html', context)
-
-
-@login_required(login_url='login')
-def delete_course(request, pk):
-    course = Course.objects.get(id=pk)
-    if request.method == 'POST':
-        course.delete()
-        return redirect('/')
+    print(course)
 
     context = {'course': course}
-    return render(request, 'school/delete_course.html', context)
+    return render(request, 'school/course_details.html', context)
+
+
+
+
+
+
+
+
+
+
+
+@login_required(login_url='login')
+def drop_course(request, pk):
+    course = Course.objects.get(id=pk)
+    # if request.method == 'POST':
+    #     course.delete()
+    #     return redirect('/')
+
+    context = {'course': course}
+    return render(request, 'school/drop_course.html', context)
 
 
 

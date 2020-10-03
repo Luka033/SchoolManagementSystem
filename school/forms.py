@@ -23,6 +23,7 @@ class FacultyForm(ModelForm):
     class Meta:
         model = Faculty
         fields = '__all__'
+        exclude = ['user']
 
 
 class CreateUserForm(UserCreationForm):

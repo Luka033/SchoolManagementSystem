@@ -35,12 +35,11 @@
 
 				{% for student in all_students %}
 					<tr>
-						<td><a class="btn btn-sm btn-info" href="">View</a></td>
+						<td><a class="btn btn-sm btn-info" href="{% url 'student_details' student.id %}">View</a></td>
 						<td>{{student.name}}</td>
 						<td>{{student.date_of_birth}}</td>
 						<td>{{student.major}}</td>
                         <td>{{student.minor}}</td>
-						<td><a class="btn btn-sm btn-info" href="">View Courses</a></td>
 					</tr>
 				{% endfor %}
 

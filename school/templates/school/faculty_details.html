@@ -1,0 +1,55 @@
+{% extends 'school/main.html' %}
+
+{% block content %}
+
+	<br>
+
+<div class="row">
+
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Faculty Details</h5>
+			<hr>
+			<p>Name: {{faculty.name}}</p>
+			<p>Title: {{faculty.title}}</p>
+			<p>Office Phone: {{faculty.office_phone}}</p>
+			<p>Office Number: {{faculty.office_number}}</p>
+			<p>Office Hours: {{faculty.office_hours}}</p>
+			<p>Department: {{faculty.department}}</p>
+
+		</div>
+	</div>
+</div>
+
+
+
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Courses Teaching</h5>
+			<table class="table table-sm">
+				<tr>
+					<th>View</th>
+					<th>Course ID</th>
+					<th>Time</th>
+                    <th>Location</th>
+					<th>Units</th>
+				</tr>
+
+				{% for course in courses %}
+					<tr>
+						<td><a class="btn btn-sm btn-info" href="{% url 'course_details' course.id %}">View</a></td>
+						<td>{{course.course_id}}</td>
+						<td>{{course.time}}</td>
+                        <td>{{course.location}}</td>
+						<td>{{course.units}}</td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
