@@ -12,6 +12,7 @@ from .filters import CourseFilter, FacultyFilter, StudentFilter
 from .decorators import unauthenticated_user, allowed_users, admin_only
 
 
+
 # This section manages registration, login, and logout
 # =============================================================
 # =============================================================
