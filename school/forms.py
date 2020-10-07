@@ -6,6 +6,11 @@ from django import forms
 
 
 
+class GradeForm(ModelForm):
+    class Meta:
+        model = Students_Course
+        fields = ['grade']
+
 class CourseForm(ModelForm):
     class Meta:
         model = Course
@@ -17,6 +22,7 @@ class StudentForm(ModelForm):
     class Meta:
         model = Student
         fields = '__all__'
+        exclude = ['user']
 
 
 class FacultyForm(ModelForm):
