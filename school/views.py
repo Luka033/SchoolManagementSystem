@@ -265,6 +265,14 @@ def account_settings(request):
     return render(request, 'school/account_settings.html', context)
 
 
+@login_required(login_url='login')
+def departments(request):
+    departments = Department.objects.all()
+
+    context = {'departments': departments}
+    return render(request, 'school/departments.html', context)
+
+
 
 
 

@@ -3,6 +3,13 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+
+class Department(models.Model):
+    department_name = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return self.department_name
+
 class Student(models.Model):
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, null=True)
@@ -19,9 +26,6 @@ class Student(models.Model):
 
 
 
-
-
-
 class Faculty(models.Model):
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, null=True)
@@ -29,7 +33,8 @@ class Faculty(models.Model):
     office_phone = models.CharField(max_length=200, null=True)
     office_number = models.CharField(max_length=200, null=True)
     office_hours = models.CharField(max_length=200, null=True)
-    department = models.CharField(max_length=200, null=True)
+    # department = models.CharField(max_length=200, null=True)
+    department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -44,7 +49,9 @@ class Course(models.Model):
         ('5', '5'),
     )
     instructor = models.ForeignKey(Faculty, null=True, on_delete=models.SET_NULL)
+    department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
 
+    semester = models.CharField(max_length=200, null=True)
     course_id = models.CharField(max_length=200, null=True)
     schedule_number = models.CharField(max_length=200, null=True)
     start_date = models.DateField(null=True)
