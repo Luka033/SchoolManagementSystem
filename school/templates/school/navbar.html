@@ -1,39 +1,69 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">(Add Logo Here)</a>
+{% load static %}
+<style>
+.top-navbar{
+    overflow: hidden;
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    width: 100%; /* Full width */;
+    z-index:1;
+}
+ul a:hover{
+  color: #FFF !important;
+}
+nav li{
+    text-align: center;
+    text-transform: uppercase;
+}
+nav li > a:after{
+    content: '';
+    display: block;
+    height: 1.5px;
+    background: #FFF;
+    transform: scaleX(0);
+    transition: transform .3s;
+}
+nav li > a:hover:after{
+    transform: scaleX(1);
+    transition: transform .3s;
+}
+.active{
+    color: #FFF !important;
+}
+</style>
+<div class="top-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="https://www.sdsu.edu/">
+        <img src="{% static 'assets/images/sdsu-hr.png' %}" alt="My image" width="180" height="40" >
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            {% ifequal user.groups.all.0.name "faculty" %}
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'faculty_home' %}">Home</a>
-                </li>
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'faculty_course_info' %}">Faculty and Course Information</a>
+                    {% ifequal user.groups.all.0.name "faculty" %}
+                    <a class="nav-link active" href="{% url 'faculty_home' %}">Home</a>
+                    {% else %}
+                    <a class="nav-link active" href="{% url 'student_home' %}">Home</a>
+                    {% endifequal%}
+                     <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'electronic_student_record' %}">Electronic Student Record</a>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="{% url 'faculty_course_info' %}">Faculty and Course Information</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'course_grades' %}">Course Grades</a>
-                </li>
-            {% else %}
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'student_home' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'course_registration' %}">Course Registration</a>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="{% url 'electronic_student_record' %}">Electronic Student Record</a>
                 </li>
 
-            {% endifequal %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'account' %}">Account Settings</a>
-            </li>
+
         </ul>
-    </div>
-    <span>Hello, {{request.user}} </span>
-    <span><a href="{% url 'logout' %}">Logout</a></span>
+        <a href="{% url 'logout' %}" class="btn btn-outline-light">Logout</a>
 
-</nav>
+    </div>
+
+    </nav>
+     {% include 'school/nav-menu.html' %}
+</div>
+
+

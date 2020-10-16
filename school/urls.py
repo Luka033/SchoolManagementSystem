@@ -9,12 +9,14 @@ urlpatterns = [
     path('register/', views.register_page, name='register'),
 
 
-    path('faculty_home', views.faculty_home, name='faculty_home'),
+    path('faculty_home/', views.faculty_home, name='faculty_home'),
+    path('schedule/', views.faculty_course_schedule, name='faculty_course_schedule'),
     path('faculty_course_info/', views.faculty_course_info, name='faculty_course_info'),
     path('faculty/<str:pk>', views.faculty_details, name='faculty_details'),
     path('electronic_student_record/', views.electronic_student_record, name='electronic_student_record'),
     path('student/<str:pk>', views.student_details, name='student_details'),
     path('course_grades/', views.course_grades, name='course_grades'),
+    path('update_grade/<str:pk>', views.update_grade, name='update_grade'),
 
 
     path('student_home/', views.student_home, name='student_home'),
@@ -23,7 +25,7 @@ urlpatterns = [
     path('drop_course/<str:pk>', views.drop_course, name='drop_course'),
 
 
-    path('account/', views.account_settings, name='account'),
+    path('account/<str:pk>', views.account_settings, name='account'),
     path('major_requirements/', views.major_course_requirements),
     path('course/<str:pk>', views.course_details, name='course_details'),
 

@@ -1,15 +1,18 @@
 {% extends 'school/main.html' %}
 
 {% block content %}
-<hr>
-<h5>FACULTY DASHBOARD</h5>
-<hr>
-
-<br>
-
-
-<h2>Home Page With Some Nice Image of Happy Students on Campus</h2>
-
+<div class="column ">
+<h3>{{faculty.name}}</h3>
+    <div class="row justify-content-center">
+        <a href="{% url 'faculty_course_schedule' %}" class="btn btn-info">My Course Schedule</a>
+    </div>
+    <div class="row justify-content-center">
+        <a href="{% url 'course_grades' %}" class="btn btn-info">My Student Grades</a>
+    </div>
+    <div class="row justify-content-center">
+        <a href="{% url 'faculty_details' user.id %}" class="btn btn-info">My Info</a>
+    </div>
+</div>
 {% endblock %}
 
 

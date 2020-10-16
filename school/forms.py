@@ -2,14 +2,17 @@ from django.forms import ModelForm
 from .models import *
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django import forms
+from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
+from bootstrap_modal_forms.mixins import PopRequestMixin, CreateUpdateAjaxMixin
 
+from django import forms
 
 
 class GradeForm(ModelForm):
     class Meta:
         model = Students_Course
         fields = ['grade']
+
 
 class CourseForm(ModelForm):
     class Meta:

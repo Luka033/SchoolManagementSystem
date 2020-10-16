@@ -1,11 +1,22 @@
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from bootstrap_modal_forms.generic import (
+    BSModalLoginView,
+    BSModalFormView,
+    BSModalCreateView,
+    BSModalUpdateView,
+    BSModalReadView,
+    BSModalDeleteView
+)
 
 # Create your views here.
+from django.urls import reverse_lazy
+
 from .models import *
 from .forms import CourseForm, StudentForm, FacultyForm, CreateUserForm, GradeForm
 from .filters import CourseFilter, FacultyFilter, StudentFilter
@@ -18,6 +29,7 @@ from .decorators import unauthenticated_user, allowed_users, admin_only
 @unauthenticated_user
 def login_page(request):
     if request.method == 'POST':
+
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -25,7 +37,10 @@ def login_page(request):
 
         if user is not None:
             login(request, user)
-            return redirect('faculty_home')
+            return redirect('student_home')
+            # If user is student, send to student home, else send to faculty_home:
+
+            # return redirect('faculty_home')
         else:
             messages.info(request, 'Username or Password is incorrect!')
 
@@ -58,23 +73,31 @@ def register_page(request):
     return render(request, 'school/register.html', context)
 
 
-
-
-
-
 # This section manages dashboard, FCI, ER, Course Grades and Account Settings for FACULTY
 # =============================================================
 # =============================================================
 @login_required(login_url='login')
-@admin_only
 def faculty_home(request):
-    students = Student.objects.all()
-    courses = Course.objects.all()
-
-    context = {'students': students,
-               'courses': courses,
-               }
+    user = request.user
+    faculty = Faculty.objects.get(id=user.id)
+    context = {
+        'user': user,
+        'faculty': faculty,
+    }
     return render(request, 'school/faculty_home.html', context)
+
+
+@login_required(login_url='login')
+def faculty_course_schedule(request):
+    faculty = Faculty.objects.get(id=request.user.id)
+    courses = Course.objects.filter(instructor=request.user.id)
+    print(courses)
+    context = {
+        'user': request.user,
+        'faculty': faculty,
+        'courses': courses,
+    }
+    return render(request, 'school/faculty_course_schedule.html', context)
 
 
 @login_required(login_url='login')
@@ -83,9 +106,11 @@ def faculty_course_info(request):
 
     my_filter = FacultyFilter(request.GET, queryset=faculty_members)
     faculty_members = my_filter.qs
-    context = {'faculty_members': faculty_members,
-               'filter': my_filter
-               }
+    context = {
+        'user': request.user,
+        'faculty_members': faculty_members,
+        'filter': my_filter
+    }
     return render(request, 'school/faculty_course_info.html', context)
 
 
@@ -95,8 +120,11 @@ def faculty_details(request, pk):
     courses = Course.objects.filter(instructor=pk)
     print(courses)
 
-    context = {'faculty': faculty,
-               'courses': courses}
+    context = {
+        'user': request.user,
+        'faculty': faculty,
+        'courses': courses,
+    }
     return render(request, 'school/faculty_details.html', context)
 
 
@@ -125,27 +153,49 @@ def student_details(request, pk):
 
 @login_required(login_url='login')
 def course_grades(request):
-    faculty_member = Faculty.objects.get(id=request.user.id)
-    courses_teaching = faculty_member.course_set.all()
+    faculty = Faculty.objects.get(id=request.user.id)
+    courses = faculty.course_set.all()
 
-    students = Students_Course.objects.filter(course=courses_teaching[0])
-    all_students = students.values('student')
+    student_course_dic = {}
+    for course in courses:
+        student_list = Students_Course.objects.filter(course=course)
+        student_course_dic[course.course_id] = student_list
 
-    print(all_students)
-
-    students_in_courses = []
-    # for course in range(len(courses_teaching)):
-    #     students = Students_Course.objects.filter(course=courses_teaching[course])
-    #     students_in_courses.append(students)
-    #     print(students_in_courses)
-
-    context = {'students_in_courses': students_in_courses}
+    context = {
+        'student_course_dic': student_course_dic
+    }
     return render(request, 'school/course_grades.html', context)
 
 
+def update_grade(request, pk):
+    form = GradeForm()
+
+    if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
+        student_course = Students_Course.objects.get(id=pk)
+        form = GradeForm(request.POST, instance=student_course)
+        if form.is_valid():
+            form.save()
+            return redirect('../course_grades')
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'school/update_grade.html', context)
+
+# class GradeUpdateView(BSModalUpdateView):
+#     template_name = 'school/update_grade.html'
+#     model = Students_Course
+#     form_class = GradeForm
+#     success_message = 'Success: Grade was updated'
+#     success_url = reverse_lazy('/course_grades')
 
 
-
+class GradeUpdateView(BSModalUpdateView):
+    model = Students_Course
+    template_name = 'school/update_grade.html'
+    form_class = GradeForm
+    success_message = 'Success: Book was updated.'
+    success_url = reverse_lazy('course_grades')
 
 # This section manages dashboard, course registration and account settings for STUDENTS
 # =============================================================
@@ -155,13 +205,10 @@ def student_home(request):
     id = request.user.student.id
     student = Student.objects.get(id=id)
 
-
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
 
     print(type(completed_courses))
-
-
 
     context = {'student': student,
                'completed_courses': completed_courses,
@@ -233,8 +280,6 @@ def drop_course(request, pk):
     return render(request, 'school/drop_course.html', context)
 
 
-
-
 # This section manages views available for STUDENTS and FACULTY
 # =============================================================
 # =============================================================
@@ -253,25 +298,22 @@ def course_details(request, pk):
 
 @login_required(login_url='login')
 # @allowed_users(allowed_roles=['student'])
-def account_settings(request):
+def account_settings(request, pk):
     if request.user.groups.filter(name__in=['faculty']).exists():
         faculty = request.user.faculty
         form = FacultyForm(instance=faculty)
+
+        if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
+            faculty = Faculty.objects.get(id=pk)
+            form = FacultyForm(request.POST, instance=faculty)
+            if form.is_valid():
+                form.save()
+                return redirect('faculty_details', pk=pk)
     else:
         student = request.user.student
         form = StudentForm(instance=student)
 
-    context = {'form': form}
+    context = {
+        'form': form
+    }
     return render(request, 'school/account_settings.html', context)
-
-
-
-
-
-
-
-
-
-
-
-

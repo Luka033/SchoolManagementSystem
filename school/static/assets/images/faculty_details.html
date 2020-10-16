@@ -4,14 +4,12 @@
 
 	<br>
 
-<div class="row">
+	<div class="row ">
 
-	<div class="col-md">
+	<div class="col-md ">
 		<div class="card card-body">
-			<h5>Faculty Details
-				{% ifequal user.groups.all.0.name "faculty" %}
+			<h5>My Information
 				<a href="{% url 'account' user.id %}" class="btn btn-outline-info">Update</a>
-				{% endifequal %}
 			</h5>
 			<hr>
 			<p>Name: {{faculty.name}}</p>
@@ -23,8 +21,13 @@
 
 		</div>
 	</div>
-</div>
 
 
 
-{% endblock %}>
+
+
+
+
+
+
+{% endblock %}
