@@ -1,0 +1,69 @@
+{% extends 'school/main.html' %}
+
+{% block content %}
+
+<br>
+
+<div class="row">
+
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>{{major.major_title}}</h5>
+            <hr>
+            <p>Department: {{major.department}}</p>
+            <p>Units Required: {{major.units_for_major}}</p>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>Required Courses</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>View</th>
+                    <th>Course ID</th>
+                    <th>Units</th>
+
+                </tr>
+
+                {% for course in required_courses %}
+                <tr>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_details' course.id %}">View</a></td>
+                    <td>{{course.course_id}}</td>
+                    <td>{{course.units}}</td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>Elective Courses</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>View</th>
+                    <th>Course ID</th>
+                    <th>Units</th>
+
+                </tr>
+
+                {% for course in electives %}
+                <tr>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_details' course.id %}">View</a></td>
+                    <td>{{course.course_id}}</td>
+                    <td>{{course.units}}</td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

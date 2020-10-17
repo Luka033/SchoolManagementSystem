@@ -8,16 +8,35 @@
             <h5>COURSES YOU TEACH</h5>
 
 
-            {% for students in students_in_courses %}
+            {% for course in courses_teaching %}
             <tr>
-                <td><b> </b></td>
-<!--                <th>Student Name</th>-->
-<!--                <th>Grade</th>-->
-<!--                <th>Notes</th>-->
+                <td><a class="btn btn-sm btn-info" href="">Manage Course</a></td>
+                <td>{{course.course_id}}</td>
             </tr>
 
 
             {% endfor %}
+
+<!--            {% for course, students in students_in_courses.items %}-->
+<!--            <tr>-->
+<!--                <td><b>{{ course }}: </b></td>-->
+<!--                <th>Student Name</th>-->
+<!--                <th>Grade</th>-->
+<!--                <th>Notes</th>-->
+<!--            </tr>-->
+
+
+<!--            {% for student in students %}-->
+<!--            <tr>-->
+<!--				<td></td>-->
+<!--                <td>{{student.student}}</td>-->
+<!--                <td>{{student.grade}}</td>-->
+<!--                <td>...</td>-->
+<!--            </tr>-->
+
+<!--            {% endfor %}-->
+
+<!--            {% endfor %}-->
 
 
 

@@ -9,14 +9,18 @@
             <h5>Completed Courses</h5>
             <table class="table table-sm">
                 <tr>
-                    <th>View Majors</th>
-                    <th>Department Name</th>
+                    <th>Major Details</th>
+                    <th>Major Title</th>
+                    <th>Department</th>
+
+
                 </tr>
 
-                {% for department in departments %}
+                {% for major in majors %}
                 <tr>
-                    <td><a class="btn btn-sm btn-info" href="">View Majors</a></td>
-                    <td>{{department.department_name}}</td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'major_requirements_details' major.id %}">Major Details</a></td>
+                    <td>{{major.major_title}}</td>
+                    <td>{{major.department.department_name}}</td>
 
                 </tr>
                 {% endfor %}

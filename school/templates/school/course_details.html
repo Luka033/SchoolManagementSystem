@@ -12,14 +12,20 @@
 
 			<p>Course ID: {{course.course_id}}</p>
 			<p>Schedule #: {{course.schedule_number}}</p>
+			<p>Description: {{course.description}}</p>
             <p>Instructor: {{course.instructor}}</p>
 			<p>Course Starts: {{course.start_date}}</p>
 			<p>Course Ends: {{course.end_date}}</p>
 			<p>Time: {{course.time}}</p>
 			<p>Location: {{course.location}}</p>
             <p>Units: {{course.units}}</p>
-            <p>Prerequisites: {{course.prerequisites}}</p>
-
+            <p>Prerequisites:
+				<ul>
+				{% for course in course_prerequisites %}
+					<li>{{course.course_id}} ({{course.units}} units)</li>
+				{% endfor %}
+				</ul>
+			</p>
 		</div>
 	</div>
 

@@ -12,11 +12,12 @@
 
             <form method="POST" action="{% url 'add_course' course.id %}">
                 {% csrf_token %}
-                <a class="btn btn-warning" href="{% url 'student_home' %}">Cancel</a>
+                <a class="btn btn-warning" href="{% url 'course_registration' %}">Cancel</a>
 
                 <input class="btn btn-success" type="submit" name="Confirm">
             </form>
         </div>
+
 	</div>
 </div>
 

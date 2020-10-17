@@ -67,7 +67,7 @@ def register_page(request):
 # =============================================================
 # =============================================================
 @login_required(login_url='login')
-@admin_only
+# @admin_only
 def faculty_home(request):
     students = Student.objects.all()
     courses = Course.objects.all()
@@ -116,10 +116,12 @@ def electronic_student_record(request):
 @login_required(login_url='login')
 def student_details(request, pk):
     student = Student.objects.get(id=pk)
-    courses = Course.objects.filter(students=pk)
+    completed_courses = student.students_course_set.filter(status="Completed")
+    in_progress_courses = student.students_course_set.filter(status="In Progress")
 
     context = {'student': student,
-               'courses': courses
+               'completed_courses': completed_courses,
+               'in_progress_courses': in_progress_courses
                }
     return render(request, 'school/student_details.html', context)
 
@@ -127,47 +129,35 @@ def student_details(request, pk):
 @login_required(login_url='login')
 def course_grades(request):
     faculty_member = Faculty.objects.get(id=request.user.id)
+
     courses_teaching = faculty_member.course_set.all()
 
-    students = Students_Course.objects.filter(course=courses_teaching[0])
-    all_students = students.values('student')
-
-    print(all_students)
-
-    students_in_courses = []
+    # students_in_courses = {}
     # for course in range(len(courses_teaching)):
+    #     course_name = courses_teaching[course].course_id
     #     students = Students_Course.objects.filter(course=courses_teaching[course])
-    #     students_in_courses.append(students)
-    #     print(students_in_courses)
+    #     students_in_courses[course_name] = students
 
-    context = {'students_in_courses': students_in_courses}
+    # print(students_in_courses)
+    context = {'courses_teaching': courses_teaching}
     return render(request, 'school/course_grades.html', context)
-
-
-
-
 
 
 # This section manages dashboard, course registration and account settings for STUDENTS
 # =============================================================
 # =============================================================
+# TODO: Combine with student_details to make one view
 @login_required(login_url='login')
 def student_home(request):
     id = request.user.student.id
     student = Student.objects.get(id=id)
 
-
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
-
-    print(type(completed_courses))
-
-
 
     context = {'student': student,
                'completed_courses': completed_courses,
                'in_progress_courses': in_progress_courses
-
                }
     return render(request, 'school/student_details.html', context)
 
@@ -176,8 +166,6 @@ def student_home(request):
 def course_registration(request):
     courses = Course.objects.all()
 
-    # num_students = Students_Course.objects.filter(course=course).count()
-    # print("Number of students enrolled: ", num_students)
 
     my_filter = CourseFilter(request.GET, queryset=courses)
     courses = my_filter.qs
@@ -193,11 +181,20 @@ def add_course(request, pk):
     id = request.user.student.id
     student = Student.objects.get(id=id)
 
+    completed_courses = []
+    prereq = course.prerequisites.all()
+    students_completed_courses = student.students_course_set.filter(status="Completed")
+    for i in students_completed_courses:
+        completed_courses.append(i.course)
+
     num_students = Students_Course.objects.filter(course=course).count()
 
     if student.students_course_set.filter(course=course).exists():
-        # TODO Use messages to add a message saying the student is already enrolled in that class
-        print("ALREADY ENROLLED IN COURSE")
+        messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
+        return redirect('course_registration')
+
+    if not all(x in completed_courses for x in prereq):
+        messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
         return redirect('course_registration')
     else:
         if request.method == 'POST':
@@ -215,7 +212,6 @@ def add_course(request, pk):
 
 @login_required(login_url='login')
 def drop_course(request, pk):
-    print(pk)
     course = Course.objects.get(id=pk)
     id = request.user.student.id
     student = Student.objects.get(id=id)
@@ -234,21 +230,19 @@ def drop_course(request, pk):
     return render(request, 'school/drop_course.html', context)
 
 
-
-
 # This section manages views available for STUDENTS and FACULTY
 # =============================================================
 # =============================================================
-def major_course_requirements(request):
-    return render(request, 'school/major_requirements.html')
+
 
 
 @login_required(login_url='login')
 def course_details(request, pk):
     course = Course.objects.get(id=pk)
-    print(course)
+    course_prerequisites = course.prerequisites.all()
 
-    context = {'course': course}
+    context = {'course': course,
+               'course_prerequisites': course_prerequisites}
     return render(request, 'school/course_details.html', context)
 
 
@@ -267,13 +261,22 @@ def account_settings(request):
 
 
 @login_required(login_url='login')
-def departments(request):
-    departments = Department.objects.all()
+def majors(request):
+    majors = Major.objects.all().order_by('department')
 
-    context = {'departments': departments}
-    return render(request, 'school/departments.html', context)
+    context = {'majors': majors}
+    return render(request, 'school/majors.html', context)
 
 
+def major_requirements_details(request, pk):
+    major = Major.objects.get(id=pk)
+    required_courses = major.required_courses.all()
+    electives = major.electives.all()
+    context = {'major': major,
+               'required_courses': required_courses,
+               'electives': electives
+               }
+    return render(request, 'school/major_requirements_details.html', context)
 
 
 
