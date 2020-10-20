@@ -1,3 +1,5 @@
 migrations
 db.sqlite3
-.ideagit 
+.ideagit
+Pipfile
+Pipfile.lock

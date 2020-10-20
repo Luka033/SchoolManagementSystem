@@ -28,6 +28,7 @@ from .decorators import unauthenticated_user, allowed_users, admin_only
 # =============================================================
 @unauthenticated_user
 def login_page(request):
+    context = {}
     if request.method == 'POST':
 
         username = request.POST.get('username')
@@ -37,14 +38,16 @@ def login_page(request):
 
         if user is not None:
             login(request, user)
-            return redirect('student_home')
-            # If user is student, send to student home, else send to faculty_home:
 
-            # return redirect('faculty_home')
+            # If user is student, send to student home, else send to faculty_home:
+            if request.user.groups.all()[0].name == 'faculty':
+                return redirect('faculty_home')
+            else:
+                return redirect('student_home')
+
         else:
             messages.info(request, 'Username or Password is incorrect!')
 
-    context = {}
     return render(request, 'school/login.html', context)
 
 
@@ -77,6 +80,7 @@ def register_page(request):
 # =============================================================
 # =============================================================
 @login_required(login_url='login')
+@admin_only
 def faculty_home(request):
     user = request.user
     faculty = Faculty.objects.get(id=user.id)
@@ -210,11 +214,11 @@ def student_home(request):
 
     print(type(completed_courses))
 
-    context = {'student': student,
-               'completed_courses': completed_courses,
-               'in_progress_courses': in_progress_courses
-
-               }
+    context = {
+        'student': student,
+        'completed_courses': completed_courses,
+        'in_progress_courses': in_progress_courses
+    }
     return render(request, 'school/student_details.html', context)
 
 
