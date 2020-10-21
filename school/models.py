@@ -3,15 +3,21 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
+class Department(models.Model):
+    department_name = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return self.department_name
 
 class Student(models.Model):
 
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    major = models.ForeignKey('Major', null=True, blank=True, on_delete=models.SET_NULL)
+
     name = models.CharField(max_length=200, null=True)
     phone = models.CharField(max_length=200, null=True)
     address = models.CharField(max_length=200, null=True)
     date_of_birth = models.DateField(null=True)
-    major = models.CharField(max_length=200, null=True, blank=True)
     minor = models.CharField(max_length=200, null=True, blank=True)
     notes = models.CharField(max_length=200, null=True, blank=True)
 
@@ -26,12 +32,13 @@ class Student(models.Model):
 
 class Faculty(models.Model):
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
+
     name = models.CharField(max_length=200, null=True)
     title = models.CharField(max_length=200, null=True)
     office_phone = models.CharField(max_length=200, null=True)
     office_number = models.CharField(max_length=200, null=True)
     office_hours = models.CharField(max_length=200, null=True)
-    department = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.name
@@ -46,7 +53,10 @@ class Course(models.Model):
         ('5', '5'),
     )
     instructor = models.ForeignKey(Faculty, null=True, on_delete=models.SET_NULL)
+    department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
+    prerequisites = models.ManyToManyField('Course', blank=True, default="")
 
+    semester = models.CharField(max_length=200, null=True)
     course_id = models.CharField(max_length=200, null=True)
     schedule_number = models.CharField(max_length=200, null=True)
     start_date = models.DateField(null=True)
@@ -56,7 +66,6 @@ class Course(models.Model):
     units = models.CharField(max_length=200, null=True, choices=NUM_UNITS, default='3')
     seats_occupied = models.IntegerField(null=True, default=0)
     seats_available = models.IntegerField(null=True, default=25)
-    prerequisites = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.course_id
@@ -87,15 +96,13 @@ class Students_Course(models.Model):
         return self.student.name + " - " + self.course.course_id
 
 
+class Major(models.Model):
+    department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
+    required_courses = models.ManyToManyField(Course, related_name='required_courses')
+    electives = models.ManyToManyField(Course, related_name='electives')
 
-# class Major(models.Model):
-#     major_id = models.CharField(max_length=200, null=True)
-#     major_title = models.CharField(max_length=200, null=True)
-#     department = models.CharField(max_length=200, null=True)
-#     units_for_major = models.CharField(max_length=200, null=True)
-#     required_courses = models.CharField(max_length=200, null=True)
-#     elective_courses = models.CharField(max_length=200, null=True)
-#     advisors_for_major = models.CharField(max_length=200, null=True)
-#
-#     def __str__(self):
-#         return self.course_id
+    major_title = models.CharField(max_length=200, null=True)
+    units_for_major = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return self.major_title

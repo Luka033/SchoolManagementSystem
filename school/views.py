@@ -40,7 +40,7 @@ def login_page(request):
             login(request, user)
 
             # If user is student, send to student home, else send to faculty_home:
-            if request.user.groups.all()[0].name == 'faculty':
+            if request.user.groups.filter(name="faculty").exists():
                 return redirect('faculty_home')
             else:
                 return redirect('student_home')
@@ -80,10 +80,10 @@ def register_page(request):
 # =============================================================
 # =============================================================
 @login_required(login_url='login')
-@admin_only
 def faculty_home(request):
     user = request.user
     faculty = Faculty.objects.get(id=user.id)
+
     context = {
         'user': user,
         'faculty': faculty,
@@ -321,3 +321,21 @@ def account_settings(request, pk):
         'form': form
     }
     return render(request, 'school/account_settings.html', context)
+
+@login_required(login_url='login')
+def majors(request):
+    majors = Major.objects.all().order_by('department')
+
+    context = {'majors': majors}
+    return render(request, 'school/majors.html', context)
+
+
+def major_requirements_details(request, pk):
+    major = Major.objects.get(id=pk)
+    required_courses = major.required_courses.all()
+    electives = major.electives.all()
+    context = {'major': major,
+               'required_courses': required_courses,
+               'electives': electives
+               }
+    return render(request, 'school/major_requirements_details.html', context)
