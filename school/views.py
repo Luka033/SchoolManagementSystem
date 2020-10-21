@@ -5,14 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from bootstrap_modal_forms.generic import (
-    BSModalLoginView,
-    BSModalFormView,
-    BSModalCreateView,
-    BSModalUpdateView,
-    BSModalReadView,
-    BSModalDeleteView
-)
+
 
 # Create your views here.
 from django.urls import reverse_lazy
@@ -194,12 +187,6 @@ def update_grade(request, pk):
 #     success_url = reverse_lazy('/course_grades')
 
 
-class GradeUpdateView(BSModalUpdateView):
-    model = Students_Course
-    template_name = 'school/update_grade.html'
-    form_class = GradeForm
-    success_message = 'Success: Book was updated.'
-    success_url = reverse_lazy('course_grades')
 
 # This section manages dashboard, course registration and account settings for STUDENTS
 # =============================================================
