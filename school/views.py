@@ -31,13 +31,7 @@ def login_page(request):
 
         if user is not None:
             login(request, user)
-
-            # If user is student, send to student home, else send to faculty_home:
-            if request.user.groups.filter(name="faculty").exists():
-                return redirect('faculty_home')
-            else:
-                return redirect('student_home')
-
+            return redirect('faculty_home')
         else:
             messages.info(request, 'Username or Password is incorrect!')
 
@@ -69,10 +63,11 @@ def register_page(request):
     return render(request, 'school/register.html', context)
 
 
-# This section manages dashboard, FCI, ER, Course Grades and Account Settings for FACULTY
+# This section manages views concerning FACULTY
 # =============================================================
 # =============================================================
 @login_required(login_url='login')
+@admin_only
 def faculty_home(request):
     user = request.user
     faculty = Faculty.objects.get(id=user.id)
@@ -126,29 +121,6 @@ def faculty_details(request, pk):
 
 
 @login_required(login_url='login')
-def electronic_student_record(request):
-    all_students = Student.objects.all()
-
-    my_filter = StudentFilter(request.GET, queryset=all_students)
-    all_students = my_filter.qs
-    context = {'all_students': all_students,
-               'filter': my_filter
-               }
-    return render(request, 'school/electronic_student_record.html', context)
-
-
-@login_required(login_url='login')
-def student_details(request, pk):
-    student = Student.objects.get(id=pk)
-    courses = Course.objects.filter(students=pk)
-
-    context = {'student': student,
-               'courses': courses
-               }
-    return render(request, 'school/student_details.html', context)
-
-
-@login_required(login_url='login')
 def course_grades(request):
     faculty = Faculty.objects.get(id=request.user.id)
     courses = faculty.course_set.all()
@@ -179,16 +151,8 @@ def update_grade(request, pk):
     }
     return render(request, 'school/update_grade.html', context)
 
-# class GradeUpdateView(BSModalUpdateView):
-#     template_name = 'school/update_grade.html'
-#     model = Students_Course
-#     form_class = GradeForm
-#     success_message = 'Success: Grade was updated'
-#     success_url = reverse_lazy('/course_grades')
 
-
-
-# This section manages dashboard, course registration and account settings for STUDENTS
+# This section manages views concerning STUDENTS ONLY
 # =============================================================
 # =============================================================
 @login_required(login_url='login')
@@ -210,11 +174,33 @@ def student_home(request):
 
 
 @login_required(login_url='login')
+def electronic_student_record(request):
+    all_students = Student.objects.all()
+
+    my_filter = StudentFilter(request.GET, queryset=all_students)
+    all_students = my_filter.qs
+    context = {'all_students': all_students,
+               'filter': my_filter
+               }
+    return render(request, 'school/electronic_student_record.html', context)
+
+
+@login_required(login_url='login')
+def student_details(request, pk):
+    student = Student.objects.get(id=pk)
+    completed_courses = student.students_course_set.filter(status="Completed")
+    in_progress_courses = student.students_course_set.filter(status="In Progress")
+
+    context = {'student': student,
+               'completed_courses': completed_courses,
+               'in_progress_courses': in_progress_courses
+               }
+    return render(request, 'school/student_details.html', context)
+
+
+@login_required(login_url='login')
 def course_registration(request):
     courses = Course.objects.all()
-
-    # num_students = Students_Course.objects.filter(course=course).count()
-    # print("Number of students enrolled: ", num_students)
 
     my_filter = CourseFilter(request.GET, queryset=courses)
     courses = my_filter.qs
@@ -230,11 +216,20 @@ def add_course(request, pk):
     id = request.user.student.id
     student = Student.objects.get(id=id)
 
+    completed_courses = []
+    prereq = course.prerequisites.all()
+    students_completed_courses = student.students_course_set.filter(status="Completed")
+    for i in students_completed_courses:
+        completed_courses.append(i.course)
+
     num_students = Students_Course.objects.filter(course=course).count()
 
     if student.students_course_set.filter(course=course).exists():
-        # TODO Use messages to add a message saying the student is already enrolled in that class
-        print("ALREADY ENROLLED IN COURSE")
+        messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
+        return redirect('course_registration')
+
+    if not all(x in completed_courses for x in prereq):
+        messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
         return redirect('course_registration')
     else:
         if request.method == 'POST':
@@ -271,9 +266,10 @@ def drop_course(request, pk):
     return render(request, 'school/drop_course.html', context)
 
 
-# This section manages views available for STUDENTS and FACULTY
+# This section manages views concerning STUDENTS and FACULTY
 # =============================================================
 # =============================================================
+
 def major_course_requirements(request):
     return render(request, 'school/major_requirements.html')
 
@@ -288,7 +284,6 @@ def course_details(request, pk):
 
 
 @login_required(login_url='login')
-# @allowed_users(allowed_roles=['student'])
 def account_settings(request, pk):
     if request.user.groups.filter(name__in=['faculty']).exists():
         faculty = request.user.faculty
@@ -308,6 +303,7 @@ def account_settings(request, pk):
         'form': form
     }
     return render(request, 'school/account_settings.html', context)
+
 
 @login_required(login_url='login')
 def majors(request):
