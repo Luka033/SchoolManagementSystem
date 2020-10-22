@@ -155,6 +155,26 @@ def update_grade(request, pk):
 # This section manages views concerning STUDENTS ONLY
 # =============================================================
 # =============================================================
+def grade_converter(student_grades):
+    # TODO: Move dict and/or function
+    grade_values = {
+        'A': 4.0,
+        'B': 3.0,
+        'C': 2.0,
+        'D': 1.0,
+        'F': 0.0
+    }
+    if len(student_grades) > 0:
+        gpa = 0.0
+        for grade in student_grades:
+            letter_grade = str(grade['grade'])
+            gpa += grade_values[letter_grade]
+
+        return gpa / len(student_grades)
+    else:
+        return 0.0
+
+
 @login_required(login_url='login')
 def student_home(request):
     id = request.user.student.id
@@ -163,12 +183,15 @@ def student_home(request):
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
 
-    print(type(completed_courses))
+    student_grades = list(completed_courses.values("grade"))
+
+    student_gpa = grade_converter(student_grades)
 
     context = {
         'student': student,
         'completed_courses': completed_courses,
-        'in_progress_courses': in_progress_courses
+        'in_progress_courses': in_progress_courses,
+        'student_gpa': student_gpa
     }
     return render(request, 'school/student_details.html', context)
 
@@ -216,16 +239,30 @@ def add_course(request, pk):
     id = request.user.student.id
     student = Student.objects.get(id=id)
 
+
+
     completed_courses = []
     prereq = course.prerequisites.all()
     students_completed_courses = student.students_course_set.filter(status="Completed")
     for i in students_completed_courses:
         completed_courses.append(i.course)
 
-    num_students = Students_Course.objects.filter(course=course).count()
-
     if student.students_course_set.filter(course=course).exists():
         messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
+        return redirect('course_registration')
+
+    if course.seats_occupied + 1 > course.seats_available:
+        messages.info(request, course.course_id + " has no available seats")
+        return redirect('course_registration')
+
+    majors = course.required_by_majors.all()
+    if course.course_level == "Upper-division" and majors:
+        if student.major not in majors:
+            messages.info(request, course.course_id + " is restricted to students of that declared major only")
+            return redirect('course_registration')
+
+    if course.course_level == "Graduate" and not student.graduate_student:
+        messages.info(request, course.course_id + " is for Graduate students only")
         return redirect('course_registration')
 
     if not all(x in completed_courses for x in prereq):
@@ -236,7 +273,7 @@ def add_course(request, pk):
             new_student_class = Students_Course(student=student, course=course, status="In Progress")
             new_student_class.save()
 
-            course.seats_occupied = num_students + 1
+            course.seats_occupied += 1
             course.save()
 
             return redirect('course_registration')

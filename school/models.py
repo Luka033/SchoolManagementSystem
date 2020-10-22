@@ -20,14 +20,10 @@ class Student(models.Model):
     date_of_birth = models.DateField(null=True)
     minor = models.CharField(max_length=200, null=True, blank=True)
     notes = models.CharField(max_length=200, null=True, blank=True)
-
+    graduate_student = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
-
-
-
-
 
 
 class Faculty(models.Model):
@@ -52,6 +48,11 @@ class Course(models.Model):
         ('4', '4'),
         ('5', '5'),
     )
+    COURSE_LEVEL = (
+        ('Lower-division', 'Lower-division'),
+        ('Upper-division', 'Upper-division'),
+        ('Graduate', 'Graduate'),
+    )
     instructor = models.ForeignKey(Faculty, null=True, on_delete=models.SET_NULL)
     department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
     prerequisites = models.ManyToManyField('Course', blank=True, default="")
@@ -66,6 +67,7 @@ class Course(models.Model):
     units = models.CharField(max_length=200, null=True, choices=NUM_UNITS, default='3')
     seats_occupied = models.IntegerField(null=True, default=0)
     seats_available = models.IntegerField(null=True, default=25)
+    course_level = models.CharField(max_length=200, null=True, choices=COURSE_LEVEL, default='Lower-division')
 
     def __str__(self):
         return self.course_id
@@ -98,7 +100,7 @@ class Students_Course(models.Model):
 
 class Major(models.Model):
     department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
-    required_courses = models.ManyToManyField(Course, related_name='required_courses')
+    required_courses = models.ManyToManyField(Course, related_name='required_by_majors')
     electives = models.ManyToManyField(Course, related_name='electives')
 
     major_title = models.CharField(max_length=200, null=True)
