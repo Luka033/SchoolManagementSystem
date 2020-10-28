@@ -86,7 +86,7 @@ class Course(models.Model):
     department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
     prerequisites = models.ManyToManyField('Course', blank=True, default="")
 
-    course_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    course_id = models.CharField(max_length=200, null=True)
     name = models.CharField(max_length=200, null=True)
     semester = models.CharField(max_length=200, null=True)
     schedule_number = models.CharField(max_length=200, null=True)
@@ -140,5 +140,5 @@ class Major(models.Model):
     def __str__(self):
         return self.major_title
 
-    def get_absolute_url(self):
-        return reverse('major_detail', kwargs={'pk': self.pk})
+    # def get_absolute_url(self):
+    #     return reverse('major_detail', kwargs={'pk': self.pk})

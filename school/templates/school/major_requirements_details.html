@@ -32,7 +32,7 @@
 
                 {% for course in required_courses %}
                 <tr>
-                    <td><a class="btn btn-sm btn-info" href="{% url 'course_details' course.id %}">View</a></td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_detail' course.id %}">View</a></td>
                     <td>{{course.course_id}}</td>
                     <td>{{course.units}}</td>
                 </tr>
@@ -55,7 +55,7 @@
 
                 {% for course in electives %}
                 <tr>
-                    <td><a class="btn btn-sm btn-info" href="{% url 'course_details' course.id %}">View</a></td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_detail' course.id %}">View</a></td>
                     <td>{{course.course_id}}</td>
                     <td>{{course.units}}</td>
                 </tr>

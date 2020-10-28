@@ -37,7 +37,7 @@
 
 				{% for course in courses %}
 					<tr>
-						<td><a class="btn btn-sm btn-info" href="{% url 'course_details' course.id %}">View</a></td>
+						<td><a class="btn btn-sm btn-info" href="{% url 'course_detail' course.id %}">View</a></td>
 						<td>{{course.course_id}}</td>
 						<td>{{course.time}}</td>
 						<td>{{course.instructor}}</td>
