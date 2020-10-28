@@ -1,36 +1,61 @@
+import uuid
+
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 
 # Create your models here.
+from django.urls import reverse
+
+
 class Department(models.Model):
+
     department_name = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.department_name
 
+    def get_absolute_url(self):
+        return reverse('department_detail', kwargs={'pk': self.pk})
+
+
+class CustomUser(AbstractUser):
+
+    date_of_birth = models.PositiveIntegerField(null=True, blank=True)
+    phone_number = models.CharField(max_length=200, null=True)
+    address = models.CharField(max_length=200, null=True)
+    is_student = models.BooleanField(default=False)
+    is_faculty = models.BooleanField(default=False)
+
+
 class Student(models.Model):
 
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
     major = models.ForeignKey('Major', null=True, blank=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=200, null=True)
-    phone = models.CharField(max_length=200, null=True)
+    date_of_birth = models.PositiveIntegerField(null=True, blank=True)
     address = models.CharField(max_length=200, null=True)
-    date_of_birth = models.DateField(null=True)
     minor = models.CharField(max_length=200, null=True, blank=True)
     notes = models.CharField(max_length=200, null=True, blank=True)
     graduate_student = models.BooleanField(default=False)
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('student_detail', kwargs={'pk': self.pk})
+
 
 class Faculty(models.Model):
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+
+    user = models.OneToOneField(CustomUser, null=True, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=200, null=True)
+    date_of_birth = models.PositiveIntegerField(null=True, blank=True)
+    address = models.CharField(max_length=200, null=True)
     title = models.CharField(max_length=200, null=True)
     office_phone = models.CharField(max_length=200, null=True)
     office_number = models.CharField(max_length=200, null=True)
@@ -38,6 +63,9 @@ class Faculty(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('faculty_detail', kwargs={'pk': self.pk})
 
 
 class Course(models.Model):
@@ -57,8 +85,9 @@ class Course(models.Model):
     department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
     prerequisites = models.ManyToManyField('Course', blank=True, default="")
 
+    course_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200, null=True)
     semester = models.CharField(max_length=200, null=True)
-    course_id = models.CharField(max_length=200, null=True)
     schedule_number = models.CharField(max_length=200, null=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
@@ -99,6 +128,7 @@ class Students_Course(models.Model):
 
 
 class Major(models.Model):
+
     department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
     required_courses = models.ManyToManyField(Course, related_name='required_by_majors')
     electives = models.ManyToManyField(Course, related_name='electives')
@@ -108,3 +138,6 @@ class Major(models.Model):
 
     def __str__(self):
         return self.major_title
+
+    def get_absolute_url(self):
+        return reverse('major_detail', kwargs={'pk': self.pk})

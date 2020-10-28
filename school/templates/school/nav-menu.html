@@ -31,25 +31,19 @@
   <!-- Navbar content -->
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            {% ifequal user.groups.all.0.name "faculty" %}
-                <li class="nav-item">
-                    <a href="{% url 'faculty_course_schedule' %}" class="nav-link active">My Course Schedule</a>
-                     <span class="sr-only">(current)</span></a>
-                </li>
+            {% if user.is_faculty %}
                 <li class="nav-item ">
-                    <a href="{% url 'course_grades' %}" class="nav-link active" >My Student Grades</a>
+                    <a class="nav-link active" href="{% url 'catalog_student' %}">Electronic Student Record</a>
                 </li>
-                <li class="nav-item ">
-                    <a href="{% url 'faculty_details' user.id %}" class="nav-link active" >My Info</a>
-                </li>
-            {% else %}
+
+            {% elif user.is_student %}
                 <li class="nav-item ">
 
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="{% url 'course_registration' %}">Course Registration</a>
                 </li>
-            {% endifequal %}
+            {% endif %}
 
         </ul>
 

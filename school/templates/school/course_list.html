@@ -1,0 +1,11 @@
+{% extends 'school/base.html' %}
+
+{% load static %}
+{% block content %}
+
+{% for course in object_list %}
+<p>{{ course.name }}</p>
+{% endfor %}
+
+
+{% endblock %}

@@ -4,8 +4,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
-
 
 # Create your views here.
 from django.urls import reverse_lazy
@@ -15,114 +13,284 @@ from .forms import CourseForm, StudentForm, FacultyForm, CreateUserForm, GradeFo
 from .filters import CourseFilter, FacultyFilter, StudentFilter
 from .decorators import unauthenticated_user, allowed_users, admin_only
 
-
-# This section manages registration, login, and logout
-# =============================================================
-# =============================================================
-@unauthenticated_user
-def login_page(request):
-    context = {}
-    if request.method == 'POST':
-
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect('faculty_home')
-        else:
-            messages.info(request, 'Username or Password is incorrect!')
-
-    return render(request, 'school/login.html', context)
+from django.views.generic import CreateView, DetailView, ListView
+from school.forms import CustomUserCreationForm, StudentSignUpForm, FacultySignUpForm
+from school.models import Student, Faculty
 
 
-def logout_user(request):
-    logout(request)
-    return redirect('login')
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                            SIGN UP
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
-@unauthenticated_user
-def register_page(request):
-    form = CreateUserForm()
-    if request.method == 'POST':
-        form = CreateUserForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-
-            group = Group.objects.get(name='student')
-            user.groups.add(group)
-
-            messages.success(request, 'Account was created for ' + username)
-
-            return redirect('login')
-
-    context = {'form': form}
-    return render(request, 'school/register.html', context)
+class SignUpView(CreateView):
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'registration/signup.html'
 
 
-# This section manages views concerning FACULTY
-# =============================================================
-# =============================================================
+'''______________________________ STUDENT SIGNUP view ___________________________________'''
+
+
+class StudentSignUpView(CreateView):
+    """ Class-base: STUDENT SIGN UP view """
+
+    model = Student
+    form_class = StudentSignUpForm
+    template_name = 'registration/signup_student_form.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['user_type'] = 'student'
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        # login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+        return redirect('home')
+
+
+'''______________________________ FACULTY SIGNUP view ___________________________________'''
+
+
+class FacultySignUpView(CreateView):
+    """ Class-base: FACULTY SIGN UP view """
+
+    model = Faculty
+    form_class = FacultySignUpForm
+    template_name = 'registration/signup_faculty_form.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['user_type'] = 'faculty'
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        # login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+        return redirect('home')
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                           PUBLIC CATALOG VIEW
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+'''___________________________ FACULTY CATALOG view ___________________________'''
+
+
 @login_required(login_url='login')
-@admin_only
-def faculty_home(request):
-    user = request.user
-    faculty = Faculty.objects.get(id=user.id)
+def catalog_faculty(request):
+    """ Function-base: FACULTY CATALOG view """
+
+    faculty_list = Faculty.objects.all()
+
+    my_filter = FacultyFilter(request.GET, queryset=faculty_list)
+    faculty_list = my_filter.qs
+    context = {
+        'faculty_list': faculty_list,
+        'filter': my_filter
+    }
+    return render(request, 'school/catalog_faculty.html', context)
+
+
+class FacultyCourseListView(ListView):
+    """ Class-base: FACULTY CATALOG view """
+
+    model = Faculty
+    context_object_name = 'faculty_list'
+    template_name = 'school/catalog_faculty.html'
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        # context['_list'] = context.
+
+        return context
+
+
+'''__________________________ STUDENT CATALOG view_________________________'''
+
+
+@login_required(login_url='login')
+def catalog_student(request):
+    """ Function-base: STUDENT CATALOG view """
+
+    student_list = Student.objects.all()
+
+    my_filter = StudentFilter(request.GET, queryset=student_list)
+    student_list = my_filter.qs
+    context = {
+        'student_list': student_list,
+        'filter': my_filter
+    }
+    return render(request, 'school/catalog_student.html', context)
+
+
+'''________________________________ UPDATE PERSONAL INFO view ________________________________'''
+
+
+@login_required(login_url='login')
+def update_personal_info(request):
+
+    if request.user.is_faculty:
+
+        faculty = request.user.faculty
+        form = FacultyForm(instance=faculty)
+
+        if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
+            faculty = Faculty.objects.get(id=faculty.id)
+            form = FacultyForm(request.POST, instance=faculty)
+            if form.is_valid():
+                form.save()
+                return redirect('faculty_detail')
+
+    elif request.user.is_student:
+        student = request.user.student
+        form = StudentForm(instance=student)
+
+        if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
+            student = Student.objects.get(id=student.id)
+            form = StudentForm(request.POST, instance=student)
+            if form.is_valid():
+                form.save()
+                return redirect('student_detail')
 
     context = {
-        'user': user,
-        'faculty': faculty,
+        'form': form
+    }
+    return render(request, 'school/update_personal_info_form.html', context)
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             STUDENT
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+'''___________________________ STUDENT HOME view ___________________________'''
+
+
+@login_required(login_url='login')
+def student_home(request):
+    """ Function-base: STUDENT HOME view """
+
+    id = request.user.student.id
+    student = Student.objects.get(id=id)
+
+    completed_courses = student.students_course_set.filter(status="Completed")
+    in_progress_courses = student.students_course_set.filter(status="In Progress")
+
+    student_grades = list(completed_courses.values("grade"))
+
+    student_gpa = grade_converter(student_grades)
+
+    context = {
+        'student': student,
+        'completed_courses': completed_courses,
+        'in_progress_courses': in_progress_courses,
+        'student_gpa': student_gpa
+    }
+    return render(request, 'school/student_detail.html', context)
+
+
+'''___________________________ STUDENT DETAIL view ___________________________'''
+
+
+@login_required(login_url='login')
+def student_detail(request):
+    """ Function-base: STUDENT DETAIL view """
+
+    student = request.user.id
+    completed_courses = student.students_course_set.filter(status="Completed")
+    in_progress_courses = student.students_course_set.filter(status="In Progress")
+
+    context = {
+        'student': student,
+        'completed_courses': completed_courses,
+        'in_progress_courses': in_progress_courses
+        }
+    return render(request, 'school/student_detail.html', context)
+
+
+class StudentDetailView(DetailView):
+    model = Student
+    context_obj_name = 'student'
+    template_name = 'school/student_detail.html'
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             FACULTY
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+'''________________________________ FACULTY HOME view _______________________________'''
+
+
+@login_required(login_url='login')
+def faculty_home(request):
+    """ Function-base: FACULTY HOME view """
+
+    context = {
+        'faculty': request.user.faculty,
     }
     return render(request, 'school/faculty_home.html', context)
 
 
+class FacultyHomeView(DetailView):
+    """ Class-based: FACULTY HOME view """
+
+    model = Faculty
+    context_object_name = 'faculty'
+    template_name = 'school/faculty_detail.html'
+
+
+'''________________________________ FACULTY DETAIL view _______________________________'''
+
+
 @login_required(login_url='login')
-def faculty_course_schedule(request):
-    faculty = Faculty.objects.get(id=request.user.id)
-    courses = Course.objects.filter(instructor=request.user.id)
-    print(courses)
+def faculty_detail(request):
+    """ Function-base: FACULTY DETAIL view """
     context = {
-        'user': request.user,
+        'faculty': request.user.faculty,
+    }
+    return render(request, 'school/faculty_detail.html', context)
+
+
+class FacultyDetailView(DetailView):
+    """ Class-based: FACULTY DETAIL view """
+
+    model = Faculty
+    context_object_name = 'faculty'
+    template_name = 'school/faculty_detail.html'
+
+
+'''________________________________ FACULTY COURSE view ________________________________'''
+
+
+@login_required(login_url='login')
+def teaching_schedule(request):
+    """ Function-base: FACULTY COURSE view """
+
+    faculty = request.user.faculty
+    courses = Course.objects.filter(instructor=faculty.id)
+
+    context = {
         'faculty': faculty,
         'courses': courses,
     }
-    return render(request, 'school/faculty_course_schedule.html', context)
+    return render(request, 'school/teaching_schedule.html', context)
 
 
-@login_required(login_url='login')
-def faculty_course_info(request):
-    faculty_members = Faculty.objects.all()
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             GRADE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    my_filter = FacultyFilter(request.GET, queryset=faculty_members)
-    faculty_members = my_filter.qs
-    context = {
-        'user': request.user,
-        'faculty_members': faculty_members,
-        'filter': my_filter
-    }
-    return render(request, 'school/faculty_course_info.html', context)
-
-
-@login_required(login_url='login')
-def faculty_details(request, pk):
-    faculty = Faculty.objects.get(id=pk)
-    courses = Course.objects.filter(instructor=pk)
-    print(courses)
-
-    context = {
-        'user': request.user,
-        'faculty': faculty,
-        'courses': courses,
-    }
-    return render(request, 'school/faculty_details.html', context)
+'''_____________________________ COURSE GRADE view _________________________________'''
 
 
 @login_required(login_url='login')
 def course_grades(request):
-    faculty = Faculty.objects.get(id=request.user.id)
+    faculty = request.user.faculty
     courses = faculty.course_set.all()
 
     student_course_dic = {}
@@ -175,50 +343,16 @@ def grade_converter(student_grades):
         return 0.0
 
 
-@login_required(login_url='login')
-def student_home(request):
-    id = request.user.student.id
-    student = Student.objects.get(id=id)
-
-    completed_courses = student.students_course_set.filter(status="Completed")
-    in_progress_courses = student.students_course_set.filter(status="In Progress")
-
-    student_grades = list(completed_courses.values("grade"))
-
-    student_gpa = grade_converter(student_grades)
-
-    context = {
-        'student': student,
-        'completed_courses': completed_courses,
-        'in_progress_courses': in_progress_courses,
-        'student_gpa': student_gpa
-    }
-    return render(request, 'school/student_details.html', context)
+"""
+____________________________________________________________________________
+                                COURSE
+____________________________________________________________________________
+"""
 
 
-@login_required(login_url='login')
-def electronic_student_record(request):
-    all_students = Student.objects.all()
-
-    my_filter = StudentFilter(request.GET, queryset=all_students)
-    all_students = my_filter.qs
-    context = {'all_students': all_students,
-               'filter': my_filter
-               }
-    return render(request, 'school/electronic_student_record.html', context)
-
-
-@login_required(login_url='login')
-def student_details(request, pk):
-    student = Student.objects.get(id=pk)
-    completed_courses = student.students_course_set.filter(status="Completed")
-    in_progress_courses = student.students_course_set.filter(status="In Progress")
-
-    context = {'student': student,
-               'completed_courses': completed_courses,
-               'in_progress_courses': in_progress_courses
-               }
-    return render(request, 'school/student_details.html', context)
+class CourseListView(ListView):
+    model = Course
+    template_name = 'catalog/courses_list.html'
 
 
 @login_required(login_url='login')
@@ -238,9 +372,6 @@ def add_course(request, pk):
     course = Course.objects.get(id=pk)
     id = request.user.student.id
     student = Student.objects.get(id=id)
-
-
-
     completed_courses = []
     prereq = course.prerequisites.all()
     students_completed_courses = student.students_course_set.filter(status="Completed")
@@ -318,28 +449,6 @@ def course_details(request, pk):
 
     context = {'course': course}
     return render(request, 'school/course_details.html', context)
-
-
-@login_required(login_url='login')
-def account_settings(request, pk):
-    if request.user.groups.filter(name__in=['faculty']).exists():
-        faculty = request.user.faculty
-        form = FacultyForm(instance=faculty)
-
-        if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
-            faculty = Faculty.objects.get(id=pk)
-            form = FacultyForm(request.POST, instance=faculty)
-            if form.is_valid():
-                form.save()
-                return redirect('faculty_details', pk=pk)
-    else:
-        student = request.user.student
-        form = StudentForm(instance=student)
-
-    context = {
-        'form': form
-    }
-    return render(request, 'school/account_settings.html', context)
 
 
 @login_required(login_url='login')

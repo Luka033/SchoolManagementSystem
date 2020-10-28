@@ -1,0 +1,22 @@
+{% extends 'school/base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    hello {{user.first_name}}
+
+{% block login-home %}
+    {% if user.is_faculty %}
+        {% include 'school/faculty_home.html' %}
+    {% else %}
+        {% include 'school/student_home.html' %}
+    {% endif %}
+{% endblock login-home %}
+
+{% else %}
+<h2>Welcome</h2>
+<h3> Course Registration Management  </h3>
+<a href="{% url 'login' %}" class="btn btn-outline-info btn-lg" role="button">Log In</a>
+<a href="{% url 'signup' %}" class="btn btn-outline-primary btn-lg" role="button">Sign Up</a>
+{% endif %}
+{% endblock content %}

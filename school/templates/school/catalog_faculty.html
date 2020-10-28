@@ -1,4 +1,4 @@
-{% extends 'school/main.html' %}
+{% extends 'school/base.html' %}
 
 {% block content %}
 
@@ -21,7 +21,6 @@
 		<div class="card card-body">
 			<table class="table table-sm">
 				<tr>
-					<th>View Faculty</th>
 					<th>Name</th>
 					<th>Title</th>
 					<th>Office Phone</th>
@@ -29,9 +28,8 @@
 					<th>Department</th>
 				</tr>
 
-				{% for faculty in faculty_members %}
+				{% for faculty in faculty_list %}
 					<tr>
-						<td><a class="btn btn-sm btn-info" href="{% url 'faculty_details' faculty.id %}">View</a></td>
 						<td>{{faculty.name}}</td>
 						<td>{{faculty.title}}</td>
 						<td>{{faculty.office_phone}}</td>

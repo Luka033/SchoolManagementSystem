@@ -59,7 +59,7 @@ ROOT_URLCONF = 'schoolsystem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,4 +126,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_URL = '/static/'
-LOGIN_REDIRECT_URL = 'login'
+
+# Use the CustomUser model in place of the built-in User model
+AUTH_USER_MODEL = 'school.CustomUser'
+
+# Account Redirect
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
+# Email Password Reset
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

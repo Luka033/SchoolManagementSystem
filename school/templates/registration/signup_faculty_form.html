@@ -1,0 +1,17 @@
+{% extends 'school/base.html' %}
+
+{% block content %}
+
+<h2>Faculty Sign Up</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <p>
+        <input class="btn btn-success" type="submit" value="Sign Up">
+    </p>
+
+</form>
+<a href="{% url 'login' %}" class="btn-outline-info" role="button">Already have an account?</a>
+{% endblock %}

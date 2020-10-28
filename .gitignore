@@ -1,5 +1,6 @@
 migrations
 db.sqlite3
 .ideagit
+.idea/
 Pipfile
 Pipfile.lock

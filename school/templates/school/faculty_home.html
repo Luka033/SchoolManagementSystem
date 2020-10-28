@@ -1,19 +1,19 @@
-{% extends 'school/main.html' %}
 
-{% block content %}
+
+{% block login-home %}
 <div class="column ">
-<h3>{{faculty.name}}</h3>
+<h3>{{ user.faculty.name }}</h3>
     <div class="row justify-content-center">
-        <a href="{% url 'faculty_course_schedule' %}" class="btn btn-info">My Course Schedule</a>
+        <a href="{% url 'teaching_schedule' %}" class="btn btn-info">My Teaching Schedule</a>
     </div>
     <div class="row justify-content-center">
         <a href="{% url 'course_grades' %}" class="btn btn-info">My Student Grades</a>
     </div>
     <div class="row justify-content-center">
-        <a href="{% url 'faculty_details' user.id %}" class="btn btn-info">My Info</a>
+        <a href="{% url 'faculty_detail' %}" class="btn btn-info">My Info</a>
     </div>
 </div>
-{% endblock %}
+{% endblock login-home %}
 
 
 

@@ -1,34 +1,32 @@
-from django.contrib import admin
 from django.urls import path
 from . import views
+from school.views import SignUpView, StudentSignUpView, FacultySignUpView
 
 
 urlpatterns = [
-    path(r'', views.login_page, name='login'),
-    path('logout/', views.logout_user, name='logout'),
-    path('register/', views.register_page, name='register'),
+    path('signup/', SignUpView.as_view(), name='signup'),
+    path('signup/student/', StudentSignUpView.as_view(), name='student_signup'),
+    path('signup/faculty/', FacultySignUpView.as_view(), name='faculty_signup'),
 
+    path('catalog/faculty_list/', views.catalog_faculty, name='catalog_faculty'),
+    path('catalog/course_list/', views.CourseListView.as_view(), name='catalog_course'),
+    path('catalog/course/<int:pk>', views.course_details, name='course_detail'),
+    path('catalog/student_list/', views.catalog_student, name='catalog_student'),
+    path('catalog/majors/', views.majors, name='majors'),
+    path('catalog/major_requirements/<int:pk>', views.major_requirements_details, name='major_requirements_details'),
 
     path('faculty_home/', views.faculty_home, name='faculty_home'),
-    path('schedule/', views.faculty_course_schedule, name='faculty_course_schedule'),
-    path('faculty_course_info/', views.faculty_course_info, name='faculty_course_info'),
-    path('faculty/<str:pk>', views.faculty_details, name='faculty_details'),
-    path('electronic_student_record/', views.electronic_student_record, name='electronic_student_record'),
-    path('student/<str:pk>', views.student_details, name='student_details'),
-    path('course_grades/', views.course_grades, name='course_grades'),
-    path('update_grade/<str:pk>', views.update_grade, name='update_grade'),
+    path('faculty/detail/', views.faculty_detail, name='faculty_detail'),
+    path('faculty/teaching_schedule/', views.teaching_schedule, name='teaching_schedule'),
+    path('faculty/course_grades/', views.course_grades, name='course_grades'),
+    path('update_grade/<int:pk>', views.update_grade, name='update_grade'),
 
 
     path('student_home/', views.student_home, name='student_home'),
-    path('course_registration/', views.course_registration, name='course_registration'),
-    path('add_course/<str:pk>', views.add_course, name='add_course'),
-    path('drop_course/<str:pk>', views.drop_course, name='drop_course'),
+    path('student/detail', views.student_detail, name='student_detail'),
+    path('student/course_registration/', views.course_registration, name='course_registration'),
+    path('student/add_course/<int:pk>', views.add_course, name='add_course'),
+    path('student/drop_course/<int:pk>', views.drop_course, name='drop_course'),
 
-
-    path('account/<str:pk>', views.account_settings, name='account'),
-    path('major_requirements/<str:pk>', views.major_requirements_details, name='major_requirements_details'),
-    path('majors/', views.majors, name='majors'),
-    path('course/<str:pk>', views.course_details, name='course_details'),
-
-
+    path('update_personal_info/', views.update_personal_info, name='update_personal_info'),
 ]

@@ -1,0 +1,13 @@
+{% extends 'school/base.html' %}
+
+{% block content %}
+
+<h3>Are you sure you want to log out?</h3>
+<form method="post" >
+    {% csrf_token %}
+    {{ form.as_p}}
+
+    <input class="btn btn-success" type="submit" value="Yes">
+    <a class="btn btn-danger" href="{% url 'home' %}">No</a>
+</form>
+{% endblock %}

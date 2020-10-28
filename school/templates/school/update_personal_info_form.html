@@ -1,4 +1,4 @@
-{%  extends 'school/main.html' %}
+{%  extends 'school/base.html' %}
 {% load static %}
 {% block content %}
 
@@ -11,7 +11,7 @@
 			<form method="POST" action="" enctype="multipart/form-data">
 				{% csrf_token %}
 				{{form.as_p}}
-				<a href="{% url 'faculty_details' user.id %}" class="btn btn-outline-danger">Cancel</a>
+				<a href="{% url 'home' %}" class="btn btn-outline-danger">Cancel</a>
 				<input class="btn btn-success" type="submit" name="Update Information">
 			</form>
 		</div>

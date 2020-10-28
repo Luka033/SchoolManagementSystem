@@ -1,4 +1,4 @@
-{% extends 'school/main.html' %}
+{% extends 'school/base.html' %}
 
 {% block content %}
 
@@ -9,9 +9,8 @@
 	<div class="col-md">
 		<div class="card card-body">
 			<h5>Faculty Details
-				{% ifequal user.groups.all.0.name "faculty" %}
-				<a href="{% url 'account' user.id %}" class="btn btn-outline-info">Update</a>
-				{% endifequal %}
+
+				<a href="{% url 'update_personal_info' %}" class="btn btn-outline-info">Update</a>
 			</h5>
 			<hr>
 			<p>Name: {{faculty.name}}</p>
