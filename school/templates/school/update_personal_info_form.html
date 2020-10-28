@@ -3,20 +3,17 @@
 {% block content %}
 
 
-	<div class="row">
-
+<div class="row">
 	<div class="col-md">
-		<div class="card card-body">
-
+		<h1>Update Information</h1>
 			<form method="POST" action="" enctype="multipart/form-data">
 				{% csrf_token %}
 				{{form.as_p}}
 				<a href="{% url 'home' %}" class="btn btn-outline-danger">Cancel</a>
 				<input class="btn btn-success" type="submit" name="Update Information">
 			</form>
-		</div>
 	</div>
-	</div>
+</div>
 
 
 

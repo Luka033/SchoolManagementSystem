@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 from django.urls import reverse
+from django.utils import timezone
 
 
 class Department(models.Model):
@@ -21,7 +22,7 @@ class Department(models.Model):
 
 class CustomUser(AbstractUser):
 
-    date_of_birth = models.PositiveIntegerField(null=True, blank=True)
+    date_of_birth = models.DateField(default=timezone.now)
     phone_number = models.CharField(max_length=200, null=True)
     address = models.CharField(max_length=200, null=True)
     is_student = models.BooleanField(default=False)
@@ -30,11 +31,11 @@ class CustomUser(AbstractUser):
 
 class Student(models.Model):
 
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     major = models.ForeignKey('Major', null=True, blank=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=200, null=True)
-    date_of_birth = models.PositiveIntegerField(null=True, blank=True)
+    date_of_birth = models.DateField(default=timezone.now)
     address = models.CharField(max_length=200, null=True)
     minor = models.CharField(max_length=200, null=True, blank=True)
     notes = models.CharField(max_length=200, null=True, blank=True)
@@ -54,7 +55,7 @@ class Faculty(models.Model):
     department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=200, null=True)
-    date_of_birth = models.PositiveIntegerField(null=True, blank=True)
+    date_of_birth = models.DateField(default=timezone.now)
     address = models.CharField(max_length=200, null=True)
     title = models.CharField(max_length=200, null=True)
     office_phone = models.CharField(max_length=200, null=True)

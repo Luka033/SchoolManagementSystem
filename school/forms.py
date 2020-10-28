@@ -78,14 +78,14 @@ class CourseForm(ModelForm):
         exclude = ['students']
 
 
-class StudentForm(ModelForm):
+class UpdateStudentDetailForm(ModelForm):
     class Meta:
         model = Student
         fields = '__all__'
         exclude = ['user']
 
 
-class FacultyForm(ModelForm):
+class UpdateFacultyDetailForm(ModelForm):
     class Meta:
         model = Faculty
         fields = '__all__'

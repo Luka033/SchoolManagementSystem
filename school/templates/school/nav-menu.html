@@ -31,7 +31,9 @@
   <!-- Navbar content -->
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+
             {% if user.is_faculty %}
+
                 <li class="nav-item ">
                     <a class="nav-link active" href="{% url 'catalog_student' %}">Electronic Student Record</a>
                 </li>
@@ -46,7 +48,5 @@
             {% endif %}
 
         </ul>
-
-
     </div>
 </nav>

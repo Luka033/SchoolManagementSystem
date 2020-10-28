@@ -9,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 
 from .models import *
-from .forms import CourseForm, StudentForm, FacultyForm, CreateUserForm, GradeForm
+from .forms import CourseForm, CreateUserForm, GradeForm, UpdateFacultyDetailForm, \
+    UpdateStudentDetailForm
 from .filters import CourseFilter, FacultyFilter, StudentFilter
 from .decorators import unauthenticated_user, allowed_users, admin_only
 
@@ -72,7 +73,7 @@ class FacultySignUpView(CreateView):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-New Section:                           PUBLIC CATALOG VIEW
+New Section:                       CATALOG VIEW
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
@@ -94,7 +95,7 @@ def catalog_faculty(request):
     return render(request, 'school/catalog_faculty.html', context)
 
 
-class FacultyCourseListView(ListView):
+class FacultyListView(ListView):
     """ Class-base: FACULTY CATALOG view """
 
     model = Faculty
@@ -128,7 +129,7 @@ def catalog_student(request):
     return render(request, 'school/catalog_student.html', context)
 
 
-'''________________________________ UPDATE PERSONAL INFO view ________________________________'''
+'''_________________________ UPDATE PERSONAL INFO view ____________________________'''
 
 
 @login_required(login_url='login')
@@ -137,22 +138,23 @@ def update_personal_info(request):
     if request.user.is_faculty:
 
         faculty = request.user.faculty
-        form = FacultyForm(instance=faculty)
+        form = UpdateFacultyDetailForm(instance=faculty)
 
         if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
             faculty = Faculty.objects.get(id=faculty.id)
-            form = FacultyForm(request.POST, instance=faculty)
+            form = UpdateFacultyDetailForm(request.POST, instance=faculty)
             if form.is_valid():
                 form.save()
                 return redirect('faculty_detail')
 
     elif request.user.is_student:
         student = request.user.student
-        form = StudentForm(instance=student)
+        print(student)
+        form = UpdateStudentDetailForm(instance=student)
 
         if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
             student = Student.objects.get(id=student.id)
-            form = StudentForm(request.POST, instance=student)
+            form = UpdateStudentDetailForm(request.POST, instance=student)
             if form.is_valid():
                 form.save()
                 return redirect('student_detail')
@@ -200,7 +202,7 @@ def student_home(request):
 def student_detail(request):
     """ Function-base: STUDENT DETAIL view """
 
-    student = request.user.id
+    student = request.user.student
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
 
@@ -216,6 +218,16 @@ class StudentDetailView(DetailView):
     model = Student
     context_obj_name = 'student'
     template_name = 'school/student_detail.html'
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        context['completed_courses'] = context.students_course_set.filter(status="Completed")
+        context['in_progress_courses'] = context.students_course_set.filter(status="In Progress")
+        return context
+
+
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
