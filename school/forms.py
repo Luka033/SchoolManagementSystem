@@ -65,19 +65,6 @@ class FacultySignUpForm(UserCreationForm):
         return user
 
 
-class GradeForm(ModelForm):
-    class Meta:
-        model = Students_Course
-        fields = ['grade']
-
-
-class CourseForm(ModelForm):
-    class Meta:
-        model = Course
-        fields = '__all__'
-        exclude = ['students']
-
-
 class UpdateStudentDetailForm(ModelForm):
     class Meta:
         model = Student
@@ -90,6 +77,19 @@ class UpdateFacultyDetailForm(ModelForm):
         model = Faculty
         fields = '__all__'
         exclude = ['user']
+
+
+class GradeForm(ModelForm):
+    class Meta:
+        model = Students_Course
+        fields = ['grade']
+
+
+class CourseForm(ModelForm):
+    class Meta:
+        model = Course
+        fields = '__all__'
+        exclude = ['students']
 
 
 class CreateUserForm(UserCreationForm):
