@@ -4,6 +4,10 @@ from school.views import SignUpView, StudentSignUpView, FacultySignUpView
 
 
 urlpatterns = [
+    path('student_report_pdf/', views.student_report_pdf.as_view(), name="student_report_pdf"),
+    path('grade_sheet_pdf/<str:pk>', views.grade_sheet_pdf.as_view(), name="grade_sheet_pdf"),
+
+
     path('signup/', SignUpView.as_view(), name='signup'),
     path('signup/student/', StudentSignUpView.as_view(), name='student_signup'),
     path('signup/faculty/', FacultySignUpView.as_view(), name='faculty_signup'),

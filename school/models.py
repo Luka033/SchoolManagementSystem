@@ -69,6 +69,11 @@ class Faculty(models.Model):
         return reverse('faculty_detail', kwargs={'pk': self.pk})
 
 
+# class Other_University_Course(models.Model):
+#     university_name = models.CharField(max_length=200, null=True)
+#     university_location = models.CharField(max_length=200, null=True)
+#     course_equivalent = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
+
 class Course(models.Model):
     NUM_UNITS = (
         ('1', '1'),

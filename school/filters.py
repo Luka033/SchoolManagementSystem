@@ -1,5 +1,6 @@
 import django_filters
 from django import forms
+from django.db.models import F
 
 from django_filters import DateFilter
 from .models import *
@@ -20,15 +21,15 @@ class CourseFilter(django_filters.FilterSet):
         return queryset
 
     prerequisites = django_filters.BooleanFilter(label='Prerequisites Completed',
-                                                 field_name='seats_occupied',
+                                                 field_name='prerequisites',
                                                  method='filter_only_prerequisites_met',
                                                  widget=forms.CheckboxInput)
 
     def filter_only_prerequisites_met(self, queryset, name, value):
-        # if value:
-        #     lookup = '__'.join([name, 'lt'])
-        #     course = Course.objets.get(course_id="CS 310")
-        #     queryset = Course.objects.filter(F(prerequisites=F('courses'))
+        if value:
+            lookup = '__'.join([name, 'iexact'])
+
+            queryset = queryset.exclude(prerequisites=F('prerequisites')).filter(**{lookup: F('prerequisites')})
         return queryset
 
     class Meta:
