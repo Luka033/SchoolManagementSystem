@@ -24,6 +24,8 @@ from django.template.loader import get_template
 from django.views import View
 from xhtml2pdf import pisa
 
+from django.db.models import Avg
+
 
 
 
@@ -314,33 +316,100 @@ def course_grades(request):
     student_course_dic = {}
     for course in courses:
         student_list = Students_Course.objects.filter(course=course)
-        student_course_dic[course.course_id] = student_list
+        student_course_dic[course] = student_list
 
     context = {
         'student_course_dic': student_course_dic
     }
     return render(request, 'school/course_grades.html', context)
 
+@login_required(login_url='login')
+def course_statistics(request, pk):
+    course = Course.objects.get(id=pk)
+
+    student_list = Students_Course.objects.filter(course=course)
+
+    grades = list(student_list.values("grade"))
+    average_digit_grade = grade_converter(grades)
+    average_letter_grade = grade_digit_to_letter(average_digit_grade)
+
+
+    num_passing_grade = student_list.exclude(grade="F").exclude(grade=None).count()
+    grade_A = student_list.filter(grade="A").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_B = student_list.filter(grade="B").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_C = student_list.filter(grade="C").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_D = student_list.filter(grade="D").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_F = student_list.filter(grade="F").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+
+    context = {'course': course,
+               'num_passing_grade': num_passing_grade,
+                'average_letter_grade': average_letter_grade,
+               'grade_A': grade_A,
+               'grade_B': grade_B,
+               'grade_C': grade_C,
+               'grade_D': grade_D,
+               'grade_F': grade_F}
+    return render(request, 'school/course_statistics.html', context)
+
 
 def update_grade(request, pk):
     form = GradeForm()
-
     if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
         student_course = Students_Course.objects.get(id=pk)
         form = GradeForm(request.POST, instance=student_course)
         if form.is_valid():
             form.save()
-            return redirect('../course_grades')
+            return redirect('course_grades')
 
     context = {
         'form': form,
     }
     return render(request, 'school/update_grade.html', context)
 
+@login_required(login_url='login')
+def end_course(request, pk):
+    course = Course.objects.get(id=pk)
+
+    if request.method == 'POST':
+        student_list = Students_Course.objects.filter(course=course)
+        for student in student_list:
+            if student.grade == None:
+                messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
+                                                              'before you can end the course')
+                return redirect('course_grades')
+            else:
+
+                student.status = "Completed"
+                print("STUDENT STATUS FOR COURSE: ", student.status)
+                student.save()
+
+        return redirect('course_grades')
+
+    context = {'course': course}
+    return render(request, 'school/end_course.html', context)
+
 
 # This section manages views concerning STUDENTS ONLY
 # =============================================================
 # =============================================================
+def grade_digit_to_letter(grade):
+    if grade >= 3.5:
+        return "A"
+    if grade >= 2.5:
+        return "B"
+    if grade >= 1.5:
+        return "C"
+    if grade >= 0.5:
+        return "D"
+    else:
+        return "F"
+
+
 def grade_converter(student_grades):
     # TODO: Move dict and/or function
     grade_values = {
@@ -464,11 +533,12 @@ def major_course_requirements(request):
 def course_details(request, pk):
     course = Course.objects.get(id=pk)
     prerequisites = course.prerequisites.all()
-    print(prerequisites)
 
     context = {'course': course,
                'prerequisites': prerequisites}
     return render(request, 'school/course_details.html', context)
+
+
 
 
 @login_required(login_url='login')

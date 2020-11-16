@@ -123,11 +123,12 @@ class Students_Course(models.Model):
     )
 
     student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL)
+    university = models.CharField(max_length=200, null=True, blank=True, default="San Diego State University")
+    university_location = models.CharField(max_length=200, null=True, blank=True, default="San Diego")
     course = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
     status = models.CharField(max_length=200, null=True, choices=STATUS)
     semester_completed = models.CharField(max_length=200, null=True, blank=True)
     grade = models.CharField(max_length=200, null=True, choices=GRADE, blank=True)
-    other_university = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.student.name + " - " + self.course.course_id

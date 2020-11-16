@@ -8,11 +8,12 @@
 	<div class="col-md-6">
 		<div class="card card-body">
 
-            <p>Are you sure you want to drop {{course}}?</p>
+            <p>Are you sure you want to end {{course}}? This action can not be reversed!</p>
 
-            <form method="POST" action="{% url 'drop_course' course.id %}">
+            <form method="POST" action="{% url 'end_course' course.id %}">
+
                 {% csrf_token %}
-                <a class="btn btn-warning" href="{% url 'student_home' %}">Cancel</a>
+                <a class="btn btn-danger" href="{% url 'course_grades' %}">Cancel</a>
 
                 <input class="btn btn-success" type="submit" name="Confirm">
             </form>

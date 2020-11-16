@@ -35,12 +35,27 @@
             {% if user.is_faculty %}
 
                 <li class="nav-item ">
+                    <a class="nav-link active" href="{% url 'teaching_schedule' %}">My Teaching Schedule</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="{% url 'course_grades' %}">My Student Grades</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="{% url 'faculty_detail' %}">My Info</a>
+                </li>
+                <li class="nav-item ">
                     <a class="nav-link active" href="{% url 'catalog_student' %}">Electronic Student Record</a>
                 </li>
 
             {% elif user.is_student %}
                 <li class="nav-item ">
-
+                    <a class="nav-link active" href="">My Course Schedule</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="">My Grades</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link active" href="{% url 'student_detail' %}">My Info</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="{% url 'course_registration' %}">Course Registration</a>

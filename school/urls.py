@@ -24,7 +24,8 @@ urlpatterns = [
     path('faculty/teaching_schedule/', views.teaching_schedule, name='teaching_schedule'),
     path('faculty/course_grades/', views.course_grades, name='course_grades'),
     path('update_grade/<str:pk>', views.update_grade, name='update_grade'),
-
+    path('faculty/end_course/<int:pk>', views.end_course, name='end_course'),
+    path('course_statistics/<int:pk>', views.course_statistics, name='course_statistics'),
 
     path('student_home/', views.student_home, name='student_home'),
     path('student/detail', views.student_detail, name='student_detail'),

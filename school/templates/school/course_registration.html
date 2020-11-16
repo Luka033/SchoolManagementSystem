@@ -8,7 +8,56 @@
 	<div class="col">
 		<div class="card card-body">
 			<form method="get">
-			{{filter.form.as_p}}
+<!--			{{filter.form.as_p}}-->
+
+			{{filter.form.department.label}}
+			<a data-toggle="tooltip" title="Search course by department">{{filter.form.department}}</a>
+			<br>
+			{{filter.form.prerequisites.label}}
+			<a data-toggle="tooltip" title="Search course that you meet the prerequisite requirements for">{{filter.form.prerequisites}}</a>
+			<br>
+			{{filter.form.course_id.label}}
+			<a data-toggle="tooltip" title="Search course by course ID ex. [CS 310]">{{filter.form.course_id}}</a>
+			<br>
+			{{filter.form.name.label}}
+			<a data-toggle="tooltip" title="Search course by name ex. [Data Structures]">{{filter.form.name}}</a>
+			<br>
+			{{filter.form.semester.label}}
+			<a data-toggle="tooltip" title="Search course by semester ex. [Fall 2020]">{{filter.form.semester}}</a>
+			<br>
+			{{filter.form.schedule_number.label}}
+			<a data-toggle="tooltip" title="Search course by schedule number [XXXX]">{{filter.form.schedule_number}}</a>
+			<br>
+			{{filter.form.location.label}}
+			<a data-toggle="tooltip" title="Search faculty by location ex. [PS-130] or [Online]">{{filter.form.location}}</a>
+			<br>
+			{{filter.form.units.label}}
+			<a data-toggle="tooltip" title="Search faculty by units [1-5]">{{filter.form.units}}</a>
+			<br>
+			{{filter.form.seats_occupied.label}}
+			<a data-toggle="tooltip" title="Search faculty by name">{{filter.form.seats_occupied}}</a>
+			<br>
+			{{filter.form.seats_available.label}}
+			<a data-toggle="tooltip" title="Search faculty by date of birth">{{filter.form.seats_available}}</a>
+			<br>
+			{{filter.form.course_level.label}}
+			<a data-toggle="tooltip" title="Search faculty by address">{{filter.form.course_level}}</a>
+			<br>
+			{{filter.form.start_date.label}}
+			<a data-toggle="tooltip" title="Search faculty by title">{{filter.form.start_date}}</a>
+			<br>
+			{{filter.form.end_date.label}}
+			<a data-toggle="tooltip" title="Search faculty by office phone number">{{filter.form.end_date}}</a>
+			<br>
+
+
+
+
+
+
+
+
+
 		    <button class="btn btn-primary" type="submit">Search</button>
 		  </form>
 		</div>
@@ -28,6 +77,7 @@
 				<tr>
 					<th>View Course</th>
 					<th>Course ID</th>
+					<th>Course Name</th>
 					<th>Time</th>
 					<th>Instructor</th>
 					<th>Units</th>
@@ -39,6 +89,7 @@
 					<tr>
 						<td><a class="btn btn-sm btn-info" href="{% url 'course_detail' course.id %}">View</a></td>
 						<td>{{course.course_id}}</td>
+						<td>{{course.name}}</td>
 						<td>{{course.time}}</td>
 						<td>{{course.instructor}}</td>
 						<td>{{course.units}}</td>
@@ -50,24 +101,5 @@
 			</table>
 		</div>
 	</div>
-
-
-
-
-<!--<div class="row">-->
-<!--	<div class="col-md-3">-->
-<!--		<div class="card card-body">-->
-
-<!--            <form action="" method="POST">-->
-<!--                {% csrf_token %}-->
-<!--                {{form}}-->
-<!--                <h5>Registration Page</h5>-->
-
-<!--                <input type="submit" name="Submit">-->
-<!--            </form>-->
-
-<!--        </div>-->
-<!--	</div>-->
-<!--</div>-->
 
 {% endblock %}}
