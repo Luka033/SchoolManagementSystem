@@ -6,7 +6,13 @@
 <div class="row">
 	<div class="col-md">
 		<div class="card card-body">
-			<h5>Course Information</h5>
+			<h5>Course Information
+				<span>
+					{% if user.is_faculty %}
+					<a class="btn btn-sm btn-dark" href="{% url 'grade_sheet_pdf' course.id %}">Print Grade Sheet</a>
+					{% endif %}
+				</span>
+			</h5>
 			<hr>
 
 			<p>Course ID: {{course.course_id}}</p>
@@ -22,7 +28,6 @@
 					{{prereq_course|linebreaks}}
 				{% endfor %}
 			</p>
-
 
 		</div>
 	</div>

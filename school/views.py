@@ -101,7 +101,7 @@ def catalog_faculty(request):
         'faculty_list': faculty_list,
         'filter': my_filter
     }
-    return render(request, 'school/catalog_faculty.html', context)
+    return render(request, 'school/catalog/catalog_faculty.html', context)
 
 
 class FacultyListView(ListView):
@@ -126,16 +126,20 @@ class FacultyListView(ListView):
 @login_required(login_url='login')
 def catalog_student(request):
     """ Function-base: STUDENT CATALOG view """
+    # Dont allow student to view student catalog
+    if request.user.is_student:
+        return render(request, 'school/404.html')
 
-    student_list = Student.objects.all()
+    else:
+        student_list = Student.objects.all()
 
-    my_filter = StudentFilter(request.GET, queryset=student_list)
-    student_list = my_filter.qs
-    context = {
-        'student_list': student_list,
-        'filter': my_filter
-    }
-    return render(request, 'school/catalog_student.html', context)
+        my_filter = StudentFilter(request.GET, queryset=student_list)
+        student_list = my_filter.qs
+        context = {
+            'student_list': student_list,
+            'filter': my_filter
+        }
+        return render(request, 'school/catalog/catalog_student.html', context)
 
 
 '''_________________________ UPDATE PERSONAL INFO view ____________________________'''

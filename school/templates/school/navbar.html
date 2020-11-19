@@ -53,6 +53,17 @@ nav li > a:hover:after{
                 <li class="nav-item ">
                     <a class="nav-link active" href="{% url 'catalog_faculty' %}">Faculty Catalog</a>
                 </li>
+                {% if not user.is_student %}
+                <li class="nav-item ">
+                    <a href="{% url 'catalog_student' %}" class="nav-link active">Electronic Student Record</a>
+                </li>
+                {% elif not user.is_faculty %}
+
+                <li class="nav-item">
+                    <a href="{% url 'course_registration' %}" class="nav-link active">Course Registration</a>
+                </li>
+                {% endif %}
+
                 <li class="nav-item ">
                     <a class="nav-link active" href="{% url 'majors' %}">Majors</a>
                 </li>
