@@ -17,7 +17,12 @@
 			<p>Time: {{course.time}}</p>
 			<p>Location: {{course.location}}</p>
             <p>Units: {{course.units}}</p>
-            <p>Prerequisites: {{course.prerequisites}}</p>
+            <p>Prerequisites:
+				{% for prereq_course in prerequisites %}
+					{{prereq_course|linebreaks}}
+				{% endfor %}
+			</p>
+
 
 		</div>
 	</div>

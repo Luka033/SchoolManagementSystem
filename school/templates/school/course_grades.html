@@ -5,19 +5,26 @@
 <div class="container">
     <h2>Student Grades</h2>
 
+    {% for message in messages %}
+        <p>{{message}}</p>
+    {% endfor %}
+
     <div class="panel-group" id="accordion">
-        {% for course_id, student_lst in student_course_dic.items %}
+        {% for course, student_lst in student_course_dic.items %}
 <!--        Course -->
 
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    {{course_id}}
+                    {{course.course_id}}
                     <a data-toggle="collapse" data-parent="#accordion" href="#course-grade-{{forloop.counter}}" class="btn btn-info">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                             </svg>
                     </a>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_statistics' course.id %}">Course Statistics</a></td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'end_course' course.id %}">End Course</a></td>
+
                 </h4>
             </div>
 <!--            Collapsed table-->
@@ -35,35 +42,33 @@
                         </tr>
                     </thead>
                     {% for student in student_lst %}
+                        <tbody>
+    <!--                    An instance of student grade-->
+                        <tr id="student-grade-{{ forloop.counter }}">
+                            <th class="text-center" scope="row">{{ forloop.counter }}</th>
+                            <td class="text-center" data-type="name">{{student.student.name}}</td>
+                            <td class="text-center">{{student.student.id}}</td>
+                            <td class="text-center"
+                                id={{student.student.id}}
+                                data-type="grade"
+                                data-old_value='{{student.grade}}'
+                                onClick="highlightEdit(this);"
+                            >
+                                {{student.grade}}
 
-                    <tbody>
+                            </td>
+    <!--                        Update grade button-->
+                            <td class="text-center">
+                                <a href="{% url 'update_grade' student.id %}" class="btn btn-sm btn-info active" role="button" aria-pressed="true">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-square text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                    </svg>
+                                </a>
+                            </td>
 
-<!--                    An instance of student grade-->
-                    <tr id="student-grade-{{ forloop.counter }}">
-                        <th class="text-center" scope="row">{{ forloop.counter }}</th>
-                        <td class="text-center" data-type="name">{{student.student.name}}</td>
-                        <td class="text-center">{{student.student.id}}</td>
-                        <td class="text-center"
-                            id={{student.student.id}}
-                            data-type="grade"
-                            data-old_value='{{student.grade}}'
-                            onClick="highlightEdit(this);"
-                        >
-                            {{student.grade}}
-
-                        </td>
-<!--                        Update grade button-->
-                        <td class="text-center">
-                            <a href="{% url 'update_grade' student.student.id %}" class="btn btn-sm btn-info active" role="button" aria-pressed="true">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-square text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                                </svg>
-                            </a>
-                        </td>
-
-                    </tr>
-                    </tbody>
+                        </tr>
+                        </tbody>
                     {% endfor%}
                 </table>
             </div>

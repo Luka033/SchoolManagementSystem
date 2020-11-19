@@ -18,6 +18,16 @@ from django.views.generic import CreateView, DetailView, ListView
 from school.forms import CustomUserCreationForm, StudentSignUpForm, FacultySignUpForm
 from school.models import Student, Faculty
 
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.views import View
+from xhtml2pdf import pisa
+
+from django.db.models import Avg
+
+
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 New Section:                            SIGN UP
@@ -76,7 +86,6 @@ class FacultySignUpView(CreateView):
 New Section:                       CATALOG VIEW
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-
 '''___________________________ FACULTY CATALOG view ___________________________'''
 
 
@@ -134,7 +143,6 @@ def catalog_student(request):
 
 @login_required(login_url='login')
 def update_personal_info(request):
-
     if request.user.is_faculty:
 
         faculty = request.user.faculty
@@ -182,15 +190,13 @@ def student_home(request):
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
 
-    student_grades = list(completed_courses.values("grade"))
 
-    student_gpa = grade_converter(student_grades)
 
     context = {
         'student': student,
         'completed_courses': completed_courses,
         'in_progress_courses': in_progress_courses,
-        'student_gpa': student_gpa
+
     }
     return render(request, 'school/student_detail.html', context)
 
@@ -206,11 +212,16 @@ def student_detail(request):
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
 
+    student_grades = list(completed_courses.values("grade"))
+
+    student_gpa = grade_converter(student_grades)
+
     context = {
         'student': student,
         'completed_courses': completed_courses,
-        'in_progress_courses': in_progress_courses
-        }
+        'in_progress_courses': in_progress_courses,
+        'student_gpa': student_gpa
+    }
     return render(request, 'school/student_detail.html', context)
 
 
@@ -231,7 +242,6 @@ class StudentDetailView(DetailView):
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 New Section:                             FACULTY
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 
 '''________________________________ FACULTY HOME view _______________________________'''
 
@@ -306,33 +316,100 @@ def course_grades(request):
     student_course_dic = {}
     for course in courses:
         student_list = Students_Course.objects.filter(course=course)
-        student_course_dic[course.course_id] = student_list
+        student_course_dic[course] = student_list
 
     context = {
         'student_course_dic': student_course_dic
     }
     return render(request, 'school/course_grades.html', context)
 
+@login_required(login_url='login')
+def course_statistics(request, pk):
+    course = Course.objects.get(id=pk)
+
+    student_list = Students_Course.objects.filter(course=course)
+
+    grades = list(student_list.values("grade"))
+    average_digit_grade = grade_converter(grades)
+    average_letter_grade = grade_digit_to_letter(average_digit_grade)
+
+
+    num_passing_grade = student_list.exclude(grade="F").exclude(grade=None).count()
+    grade_A = student_list.filter(grade="A").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_B = student_list.filter(grade="B").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_C = student_list.filter(grade="C").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_D = student_list.filter(grade="D").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+    grade_F = student_list.filter(grade="F").count() / course.seats_occupied * 100 \
+        if course.seats_occupied != 0 else 0
+
+    context = {'course': course,
+               'num_passing_grade': num_passing_grade,
+                'average_letter_grade': average_letter_grade,
+               'grade_A': grade_A,
+               'grade_B': grade_B,
+               'grade_C': grade_C,
+               'grade_D': grade_D,
+               'grade_F': grade_F}
+    return render(request, 'school/course_statistics.html', context)
+
 
 def update_grade(request, pk):
     form = GradeForm()
-
     if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
         student_course = Students_Course.objects.get(id=pk)
         form = GradeForm(request.POST, instance=student_course)
         if form.is_valid():
             form.save()
-            return redirect('../course_grades')
+            return redirect('course_grades')
 
     context = {
         'form': form,
     }
     return render(request, 'school/update_grade.html', context)
 
+@login_required(login_url='login')
+def end_course(request, pk):
+    course = Course.objects.get(id=pk)
+
+    if request.method == 'POST':
+        student_list = Students_Course.objects.filter(course=course)
+        for student in student_list:
+            if student.grade == None:
+                messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
+                                                              'before you can end the course')
+                return redirect('course_grades')
+            else:
+
+                student.status = "Completed"
+                print("STUDENT STATUS FOR COURSE: ", student.status)
+                student.save()
+
+        return redirect('course_grades')
+
+    context = {'course': course}
+    return render(request, 'school/end_course.html', context)
+
 
 # This section manages views concerning STUDENTS ONLY
 # =============================================================
 # =============================================================
+def grade_digit_to_letter(grade):
+    if grade >= 3.5:
+        return "A"
+    if grade >= 2.5:
+        return "B"
+    if grade >= 1.5:
+        return "C"
+    if grade >= 0.5:
+        return "D"
+    else:
+        return "F"
+
+
 def grade_converter(student_grades):
     # TODO: Move dict and/or function
     grade_values = {
@@ -455,10 +532,13 @@ def major_course_requirements(request):
 @login_required(login_url='login')
 def course_details(request, pk):
     course = Course.objects.get(id=pk)
-    print(course)
+    prerequisites = course.prerequisites.all()
 
-    context = {'course': course}
+    context = {'course': course,
+               'prerequisites': prerequisites}
     return render(request, 'school/course_details.html', context)
+
+
 
 
 @login_required(login_url='login')
@@ -478,3 +558,77 @@ def major_requirements_details(request, pk):
                'electives': electives
                }
     return render(request, 'school/major_requirements_details.html', context)
+
+
+def render_to_pdf(template_src, context_dict={}):
+
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+
+def get_student_data(request):
+    student = request.user.student
+    completed_courses = student.students_course_set.filter(status="Completed")
+    student_grades = list(completed_courses.values("grade"))
+
+    student_gpa = grade_converter(student_grades)
+    data = {
+        "name": student.name,
+
+        "date_of_birth": student.date_of_birth,
+        "address": student.address,
+        "phone": request.user.phone_number,
+        "email": "youremail@dennisivy.com",
+
+        "major": student.major,
+        "minor": student.minor,
+        "graduate_student": student.graduate_student,
+
+        "completed_courses": completed_courses,
+        "student_gpa": student_gpa,
+    }
+    return data
+
+
+# Opens up page as PDF
+class student_report_pdf(View):
+    def get(self, request, *args, **kwargs):
+
+        pdf = render_to_pdf('school/student_report_pdf.html', get_student_data(request))
+        return HttpResponse(pdf, content_type='application/pdf')
+
+
+
+def get_grade_sheet_data(request, pk):
+    course = Course.objects.get(id=pk)
+    student_list = Students_Course.objects.filter(course=course)
+
+    data = {
+        "course_ID": course.course_id,
+        "name": course.name,
+
+        "department": course.department,
+        "schedule_number": course.schedule_number,
+        "instructor": course.instructor,
+        "units": course.units,
+
+        "start_date": course.start_date,
+        "end_date": course.end_date,
+        "time": course.time,
+
+        "student_list": student_list,
+    }
+    return data
+
+
+# Opens up page as PDF
+class grade_sheet_pdf(View):
+    def get(self, request, pk, *args, **kwargs):
+
+        pdf = render_to_pdf('school/grade_sheet_pdf.html', get_grade_sheet_data(request, pk))
+        return HttpResponse(pdf, content_type='application/pdf')

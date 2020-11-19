@@ -7,7 +7,31 @@
 		<h5>FACULTY SEARCH:</h5>
 		<div class="card card-body">
 			<form method="get">
-			{{filter.form.as_p}}
+<!--			{{filter.form.as_p}}-->
+
+			{{filter.form.department.label}}
+			<a data-toggle="tooltip" title="Search faculty by department">{{filter.form.department}}</a>
+			<br>
+			{{filter.form.name.label}}
+			<a data-toggle="tooltip" title="Search faculty by name">{{filter.form.name}}</a>
+			<br>
+			{{filter.form.date_of_birth.label}}
+			<a data-toggle="tooltip" title="Search faculty by date of birth">{{filter.form.date_of_birth}}</a>
+			<br>
+			{{filter.form.address.label}}
+			<a data-toggle="tooltip" title="Search faculty by address">{{filter.form.address}}</a>
+			<br>
+			{{filter.form.title.label}}
+			<a data-toggle="tooltip" title="Search faculty by title">{{filter.form.title}}</a>
+			<br>
+			{{filter.form.office_phone.label}}
+			<a data-toggle="tooltip" title="Search faculty by office phone number">{{filter.form.office_phone}}</a>
+			<br>
+			{{filter.form.office_number.label}}
+			<a data-toggle="tooltip" title="Search faculty by office number">{{filter.form.office_number}}</a>
+
+
+
 		    <button class="btn btn-primary" type="submit">Search</button>
 		  </form>
 		</div>

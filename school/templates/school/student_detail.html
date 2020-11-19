@@ -19,6 +19,7 @@
             <p>Major: {{student.major}}</p>
             <p>Minor: {{student.minor}}</p>
             <p>GPA: {{student_gpa}}</p>
+            <td><a class="btn btn-info" href="{% url 'student_report_pdf' %}" target="_blank">View Student Report</a></td>
 
         </div>
     </div>
@@ -35,7 +36,7 @@
 
                 {% for comp_course in completed_courses %}
                 <tr>
-                    <td><a class="btn btn-sm btn-info" href="{% url 'course_details' comp_course.course.id %}">View</a></td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_detail' comp_course.course.id %}">View</a></td>
                     <td>{{comp_course.course}}</td>
                     <td>{{comp_course.grade}}</td>
                     <td>{{comp_course.course.units}}</td>

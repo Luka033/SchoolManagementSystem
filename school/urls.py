@@ -4,6 +4,10 @@ from school.views import SignUpView, StudentSignUpView, FacultySignUpView
 
 
 urlpatterns = [
+    path('student_report_pdf/', views.student_report_pdf.as_view(), name="student_report_pdf"),
+    path('grade_sheet_pdf/<str:pk>', views.grade_sheet_pdf.as_view(), name="grade_sheet_pdf"),
+
+
     path('signup/', SignUpView.as_view(), name='signup'),
     path('signup/student/', StudentSignUpView.as_view(), name='student_signup'),
     path('signup/faculty/', FacultySignUpView.as_view(), name='faculty_signup'),
@@ -20,7 +24,8 @@ urlpatterns = [
     path('faculty/teaching_schedule/', views.teaching_schedule, name='teaching_schedule'),
     path('faculty/course_grades/', views.course_grades, name='course_grades'),
     path('update_grade/<str:pk>', views.update_grade, name='update_grade'),
-
+    path('faculty/end_course/<int:pk>', views.end_course, name='end_course'),
+    path('course_statistics/<int:pk>', views.course_statistics, name='course_statistics'),
 
     path('student_home/', views.student_home, name='student_home'),
     path('student/detail', views.student_detail, name='student_detail'),

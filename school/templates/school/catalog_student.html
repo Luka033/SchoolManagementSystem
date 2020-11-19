@@ -7,7 +7,26 @@
         <h5>STUDENT SEARCH:</h5>
 		<div class="card card-body">
 			<form method="get">
-			{{filter.form.as_p}}
+<!--			{{filter.form.as_p}}-->
+			{{filter.form.major.label}}
+			<a data-toggle="tooltip" title="Search by student Major">{{filter.form.major}}</a>
+			<br>
+			{{filter.form.name.label}}
+			<a data-toggle="tooltip" title="Search by student name [First Last]">{{filter.form.name}}</a>
+			<br>
+			{{filter.form.date_of_birth.label}}
+			<a data-toggle="tooltip" title="Search by student date of birth [YYYY-MM-DD]">{{filter.form.date_of_birth}}</a>
+			<br>
+			{{filter.form.address.label}}
+			<a data-toggle="tooltip" title="Search by student address">{{filter.form.address}}</a>
+			<br>
+			{{filter.form.minor.label}}
+			<a data-toggle="tooltip" title="Search by student Major">{{filter.form.minor}}</a>
+			<br>
+			{{filter.form.graduate_student.label}}
+			<a data-toggle="tooltip" title="Search by student graduate status">{{filter.form.graduate_student}}</a>
+			<br>
+
 		    <button class="btn btn-primary" type="submit">Search</button>
 		  </form>
 		</div>
@@ -26,6 +45,7 @@
 
 				{% for student in student_list %}
 					<tr>
+						<td><a class="btn btn-sm btn-info" href="">View</a></td>
 						<td>{{student.name}}</td>
 						<td>{{student.major}}</td>
                         <td>{{student.minor}}</td>

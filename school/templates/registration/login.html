@@ -2,10 +2,22 @@
 
 {% block content %}
 
+
+
 <h2>Log In</h2>
+
+
+
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{form.username.label}}
+    <a data-toggle="tooltip" title="Enter your username">{{form.username}}</a>
+    <br>
+
+    {{form.password.label}}
+    <a data-toggle="tooltip" title="Enter your password">{{form.password}}</a>
+    <br>
+
     <p>
         <input class="btn btn-success" type="submit" value="Log In">
     </p>

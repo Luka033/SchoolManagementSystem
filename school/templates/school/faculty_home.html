@@ -2,16 +2,16 @@
 
 {% block login-home %}
 <div class="column ">
-<h3>{{ user.faculty.name }}</h3>
-    <div class="row justify-content-center">
-        <a href="{% url 'teaching_schedule' %}" class="btn btn-info">My Teaching Schedule</a>
-    </div>
-    <div class="row justify-content-center">
-        <a href="{% url 'course_grades' %}" class="btn btn-info">My Student Grades</a>
-    </div>
-    <div class="row justify-content-center">
-        <a href="{% url 'faculty_detail' %}" class="btn btn-info">My Info</a>
-    </div>
+<h3>Hello, {{ user.faculty.name }}</h3>
+<!--    <div class="row justify-content-center">-->
+<!--        <a href="{% url 'teaching_schedule' %}" class="btn btn-info">My Teaching Schedule</a>-->
+<!--    </div>-->
+<!--    <div class="row justify-content-center">-->
+<!--        <a href="{% url 'course_grades' %}" class="btn btn-info">My Student Grades</a>-->
+<!--    </div>-->
+<!--    <div class="row justify-content-center">-->
+<!--        <a href="{% url 'faculty_detail' %}" class="btn btn-info">My Info</a>-->
+<!--    </div>-->
 </div>
 {% endblock login-home %}
 

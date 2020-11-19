@@ -1,14 +1,14 @@
 {% block login-home %}
 <div class="column ">
-<h3>{{student.name}}</h3>
-    <div class="row justify-content-center">
-        <a href="" class="btn btn-info">My Course Schedule</a>
-    </div>
-    <div class="row justify-content-center">
-        <a href="" class="btn btn-info">My Grades</a>
-    </div>
-    <div class="row justify-content-center">
-        <a href="{% url 'student_detail' %}" class="btn btn-info">My Info</a>
-    </div>
+<h3>Hello, {{user.student.name}}</h3>
+<!--    <div class="row justify-content-center">-->
+<!--        <a href="" class="btn btn-info">My Course Schedule</a>-->
+<!--    </div>-->
+<!--    <div class="row justify-content-center">-->
+<!--        <a href="" class="btn btn-info">My Grades</a>-->
+<!--    </div>-->
+<!--    <div class="row justify-content-center">-->
+<!--        <a href="{% url 'student_detail' %}" class="btn btn-info">My Info</a>-->
+<!--    </div>-->
 </div>
 {% endblock login-home %}
