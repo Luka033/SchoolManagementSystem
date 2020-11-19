@@ -1,0 +1,46 @@
+{% extends 'school/base.html' %}
+
+{% load static %}
+{% block content %}
+
+<div class="col-md-12">
+    ALL COUSRES
+    <div class="card card-body">
+        <table class="table table-sm">
+            <tr>
+                <th>Course ID</th>
+                <th>Time</th>
+                <th>Instructor</th>
+                <th>Units</th>
+                <th>Seats</th>
+                <th></th>
+
+            </tr>
+
+            {% for course in object_list %}
+                <tr>
+
+                    <td>
+                        <a href="{% url 'course_detail' course.id %}" class="course-detail">
+                            {{course.course_id}}
+                        </a>
+                    </td>
+                    <td>{{course.time}}</td>
+                    <td>{{course.instructor}}</td>
+                    <td>{{course.units}}</td>
+                    <td>{{course.seats_occupied}} / {{course.seats_available}}</td>
+                    {% if user.is_student %}
+                        <td>
+                            <a class="btn btn-sm btn-success" href="{% url 'add_course' course.id %}">Add</a>
+                        <td>
+                    {% endif %}
+
+                </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

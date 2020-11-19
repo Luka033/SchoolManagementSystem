@@ -362,8 +362,7 @@ ____________________________________________________________________________
 
 class CourseListView(ListView):
     model = Course
-    template_name = 'catalog/courses_list.html'
-
+    template_name = 'school/catalog/catalog_course.html'
 
 @login_required(login_url='login')
 def course_registration(request):
@@ -371,9 +370,10 @@ def course_registration(request):
 
     my_filter = CourseFilter(request.GET, queryset=courses)
     courses = my_filter.qs
-    context = {'courses': courses,
-               'filter': my_filter
-               }
+    context = {
+        'courses': courses,
+        'filter': my_filter
+    }
     return render(request, 'school/course_registration.html', context)
 
 
