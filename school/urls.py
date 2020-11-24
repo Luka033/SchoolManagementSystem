@@ -4,7 +4,7 @@ from school.views import SignUpView, StudentSignUpView, FacultySignUpView
 
 
 urlpatterns = [
-    path('student_report_pdf/', views.student_report_pdf.as_view(), name="student_report_pdf"),
+    path('student_report_pdf/<int:pk>', views.student_report_pdf.as_view(), name="student_report_pdf"),
     path('grade_sheet_pdf/<str:pk>', views.grade_sheet_pdf.as_view(), name="grade_sheet_pdf"),
 
 
@@ -20,7 +20,7 @@ urlpatterns = [
     path('catalog/major_requirements/<int:pk>', views.major_requirements_details, name='major_requirements_details'),
 
     path('faculty_home/', views.faculty_home, name='faculty_home'),
-    path('faculty/detail/', views.faculty_detail, name='faculty_detail'),
+    path('faculty/detail/<int:pk>', views.faculty_detail, name='faculty_detail'),
     path('faculty/teaching_schedule/', views.teaching_schedule, name='teaching_schedule'),
     path('faculty/course_grades/', views.course_grades, name='course_grades'),
     path('update_grade/<str:pk>', views.update_grade, name='update_grade'),
@@ -28,7 +28,7 @@ urlpatterns = [
     path('course_statistics/<int:pk>', views.course_statistics, name='course_statistics'),
 
     path('student_home/', views.student_home, name='student_home'),
-    path('student/detail', views.student_detail, name='student_detail'),
+    path('student/detail/<int:pk>', views.student_detail, name='student_detail'),
     path('student/course_registration/', views.course_registration, name='course_registration'),
     path('student/add_course/<int:pk>', views.add_course, name='add_course'),
     path('student/drop_course/<int:pk>', views.drop_course, name='drop_course'),

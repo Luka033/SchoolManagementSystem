@@ -45,7 +45,7 @@
 
 				{% for student in student_list %}
 					<tr>
-						<td><a class="btn btn-sm btn-info" href="">View</a></td>
+						<td><a class="btn btn-sm btn-info" href="{% url 'student_detail' student.id %}">View</a></td>
 						<td>{{student.name}}</td>
 						<td>{{student.major}}</td>
                         <td>{{student.minor}}</td>

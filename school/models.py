@@ -25,6 +25,7 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(default=timezone.now)
     phone_number = models.CharField(max_length=200, null=True)
     address = models.CharField(max_length=200, null=True)
+    email = models.CharField(max_length=200, null=True, blank=True)
     is_student = models.BooleanField(default=False)
     is_faculty = models.BooleanField(default=False)
 
@@ -37,6 +38,7 @@ class Student(models.Model):
     name = models.CharField(max_length=200, null=True)
     date_of_birth = models.DateField(default=timezone.now)
     address = models.CharField(max_length=200, null=True)
+    email = models.CharField(max_length=200, null=True, blank=True)
     minor = models.CharField(max_length=200, null=True, blank=True)
     notes = models.CharField(max_length=200, null=True, blank=True)
     graduate_student = models.BooleanField(default=False)
@@ -57,6 +59,7 @@ class Faculty(models.Model):
     name = models.CharField(max_length=200, null=True)
     date_of_birth = models.DateField(default=timezone.now)
     address = models.CharField(max_length=200, null=True)
+    email = models.CharField(max_length=200, null=True, blank=True)
     title = models.CharField(max_length=200, null=True)
     office_phone = models.CharField(max_length=200, null=True)
     office_number = models.CharField(max_length=200, null=True)

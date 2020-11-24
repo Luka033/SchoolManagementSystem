@@ -54,7 +54,7 @@
 
 				{% for faculty in faculty_list %}
 					<tr>
-						<td>{{faculty.name}}</td>
+						<td><a href="{% url 'faculty_detail' faculty.id %}">{{faculty.name}}</a></td>
 						<td>{{faculty.title}}</td>
 						<td>{{faculty.office_phone}}</td>
 						<td>{{faculty.office_number}}</td>

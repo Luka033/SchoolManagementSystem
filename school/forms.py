@@ -38,6 +38,7 @@ class StudentSignUpForm(UserCreationForm):
         student.name = user.first_name + ' ' + user.last_name
         student.date_of_birth = user.date_of_birth
         student.address = user.address
+        student.email = user.email
         student.save()
 
         return user
@@ -60,6 +61,7 @@ class FacultySignUpForm(UserCreationForm):
         faculty.date_of_birth = user.date_of_birth
         faculty.title = 'Teacher'
         faculty.address = user.address
+        faculty.email = user.email
         faculty.save()
 
         return user

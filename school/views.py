@@ -153,7 +153,7 @@ def update_personal_info(request):
             form = UpdateFacultyDetailForm(request.POST, instance=faculty)
             if form.is_valid():
                 form.save()
-                return redirect('faculty_detail')
+                return redirect('faculty_detail', faculty.id)
 
     elif request.user.is_student:
         student = request.user.student
@@ -165,7 +165,7 @@ def update_personal_info(request):
             form = UpdateStudentDetailForm(request.POST, instance=student)
             if form.is_valid():
                 form.save()
-                return redirect('student_detail')
+                return redirect('student_detail', student.id)
 
     context = {
         'form': form
@@ -205,10 +205,10 @@ def student_home(request):
 
 
 @login_required(login_url='login')
-def student_detail(request):
+def student_detail(request, pk):
     """ Function-base: STUDENT DETAIL view """
 
-    student = request.user.student
+    student = Student.objects.get(id=pk)
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
 
@@ -268,10 +268,11 @@ class FacultyHomeView(DetailView):
 
 
 @login_required(login_url='login')
-def faculty_detail(request):
+def faculty_detail(request, pk):
     """ Function-base: FACULTY DETAIL view """
+    faculty = Faculty.objects.get(id=pk)
     context = {
-        'faculty': request.user.faculty,
+        'faculty': faculty,
     }
     return render(request, 'school/faculty_detail.html', context)
 
@@ -422,6 +423,7 @@ def grade_converter(student_grades):
     if len(student_grades) > 0:
         gpa = 0.0
         for grade in student_grades:
+
             letter_grade = str(grade['grade'])
             gpa += grade_values[letter_grade]
 
@@ -571,8 +573,8 @@ def render_to_pdf(template_src, context_dict={}):
     return None
 
 
-def get_student_data(request):
-    student = request.user.student
+def get_student_data(request, pk):
+    student = Student.objects.get(id=pk)
     completed_courses = student.students_course_set.filter(status="Completed")
     student_grades = list(completed_courses.values("grade"))
 
@@ -583,7 +585,7 @@ def get_student_data(request):
         "date_of_birth": student.date_of_birth,
         "address": student.address,
         "phone": request.user.phone_number,
-        "email": "youremail@dennisivy.com",
+        "email": student.email,
 
         "major": student.major,
         "minor": student.minor,
@@ -597,9 +599,9 @@ def get_student_data(request):
 
 # Opens up page as PDF
 class student_report_pdf(View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, pk, *args, **kwargs):
 
-        pdf = render_to_pdf('school/student_report_pdf.html', get_student_data(request))
+        pdf = render_to_pdf('school/student_report_pdf.html', get_student_data(request, pk))
         return HttpResponse(pdf, content_type='application/pdf')
 
 
