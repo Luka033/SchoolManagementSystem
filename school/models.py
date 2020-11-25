@@ -90,22 +90,25 @@ class Course(models.Model):
         ('Upper-division', 'Upper-division'),
         ('Graduate', 'Graduate'),
     )
-    instructor = models.ForeignKey(Faculty, null=True, on_delete=models.SET_NULL)
-    department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
-    prerequisites = models.ManyToManyField('Course', blank=True, default="")
 
     course_id = models.CharField(max_length=200, null=True)
-    name = models.CharField(max_length=200, null=True)
-    semester = models.CharField(max_length=200, null=True)
     schedule_number = models.CharField(max_length=200, null=True)
+    title = models.CharField(max_length=200, null=True)
+    units = models.CharField(max_length=200, null=True, choices=NUM_UNITS, default='3')
+    time = models.CharField(max_length=200, null=True)
+    day = models.CharField(max_length=200, null=True)
+    location = models.CharField(max_length=200, null=True, blank=True)
+    instructor = models.ForeignKey(Faculty, null=True, on_delete=models.SET_NULL)
+    capacity = models.IntegerField(null=True, default=0)
+    seats_open = models.IntegerField(null=True, default=capacity)
+    course_level = models.CharField(max_length=200, null=True, choices=COURSE_LEVEL, default='Lower-division')
+
+    semester = models.CharField(max_length=200, null=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
-    time = models.CharField(max_length=200, null=True)
-    location = models.CharField(max_length=200, null=True, blank=True)
-    units = models.CharField(max_length=200, null=True, choices=NUM_UNITS, default='3')
-    seats_occupied = models.IntegerField(null=True, default=0)
-    seats_available = models.IntegerField(null=True, default=25)
-    course_level = models.CharField(max_length=200, null=True, choices=COURSE_LEVEL, default='Lower-division')
+
+    department = models.ForeignKey(Department, null=True, on_delete=models.SET_NULL)
+    prerequisites = models.ManyToManyField('Course', blank=True, default="")
 
     def __str__(self):
         return self.course_id

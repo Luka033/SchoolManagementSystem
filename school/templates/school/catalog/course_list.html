@@ -1,0 +1,110 @@
+{% extends 'school/base.html' %}
+
+{% load static %}
+{% block content %}
+
+<br>
+<div class="row">
+	<div class="col">
+		<div class="card card-body">
+			<form method="get">
+<!--			{{filter.form.as_p}}-->
+
+			{{filter.form.department.label}}
+			<a data-toggle="tooltip" title="Search course by department">{{filter.form.department}}</a>
+			<br>
+			{{filter.form.prerequisites.label}}
+			<a data-toggle="tooltip" title="Search course that you meet the prerequisite requirements for">{{filter.form.prerequisites}}</a>
+			<br>
+			{{filter.form.course_id.label}}
+			<a data-toggle="tooltip" title="Search course by course ID ex. [CS 310]">{{filter.form.course_id}}</a>
+			<br>
+			{{filter.form.name.label}}
+			<a data-toggle="tooltip" title="Search course by name ex. [Data Structures]">{{filter.form.name}}</a>
+			<br>
+			{{filter.form.semester.label}}
+			<a data-toggle="tooltip" title="Search course by semester ex. [Fall 2020]">{{filter.form.semester}}</a>
+			<br>
+			{{filter.form.schedule_number.label}}
+			<a data-toggle="tooltip" title="Search course by schedule number [XXXX]">{{filter.form.schedule_number}}</a>
+			<br>
+			{{filter.form.location.label}}
+			<a data-toggle="tooltip" title="Search faculty by location ex. [PS-130] or [Online]">{{filter.form.location}}</a>
+			<br>
+			{{filter.form.units.label}}
+			<a data-toggle="tooltip" title="Search faculty by units [1-5]">{{filter.form.units}}</a>
+			<br>
+			{{filter.form.seats_occupied.label}}
+			<a data-toggle="tooltip" title="Search faculty by name">{{filter.form.seats_occupied}}</a>
+			<br>
+			{{filter.form.seats_available.label}}
+			<a data-toggle="tooltip" title="Search faculty by date of birth">{{filter.form.seats_available}}</a>
+			<br>
+			{{filter.form.course_level.label}}
+			<a data-toggle="tooltip" title="Search faculty by address">{{filter.form.course_level}}</a>
+			<br>
+			{{filter.form.start_date.label}}
+			<a data-toggle="tooltip" title="Search faculty by title">{{filter.form.start_date}}</a>
+			<br>
+			{{filter.form.end_date.label}}
+			<a data-toggle="tooltip" title="Search faculty by office phone number">{{filter.form.end_date}}</a>
+			<br>
+
+		    <button class="btn btn-primary" type="submit">Search</button>
+		  </form>
+		</div>
+	</div>
+
+</div>
+<br>
+
+<div class="col-md-12">
+		<h5>ALL COURSES:</h5>
+		{% for message in messages %}
+			<p>{{message}}</p>
+		{% endfor %}
+		<hr>
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>Course</th>
+					<th>Sched #</th>
+					<th>Course Name</th>
+					<th>Units</th>
+					<th>Time</th>
+					<th>Day</th>
+					<th>Location</th>
+					<th>Instructor</th>
+					<th>Seats Open</th>
+					<th></th>
+				</tr>
+
+				{% for course in courses %}
+					<tr>
+						<td><a class="" href="{% url 'course_detail' course.id %}">{{course.course_id}}</a></td>
+						<td>{{course.schedule_number}}</td>
+						<td>{{course.title}}</td>
+						<td>{{course.units}}</td>
+						<td>{{course.time}}</td>
+						<td>{{course.day}}</td>
+						<td>{{course.location}}</td>
+						<td>{{course.instructor}}</td>
+						<td>{{course.seats_open}} / {{course.capacity}}</td>
+						{% if user.is_authenticated and user.is_student %}
+						<td>
+							<a class="" href="#">Plan</a> |
+							{% if course.seats_open != 0 %}
+							<a class="" href="{% url 'add_course' course.id %}">Add</a>
+							{% else %}
+							<a class="" href="#">Waitlist</a>
+							{% endif %}
+						</td>
+						{% endif %}
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+
+{% endblock %}}

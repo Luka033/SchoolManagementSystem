@@ -8,13 +8,12 @@
 
 	<div class="col-md">
 		<div class="card card-body">
-			<h5>Faculty Details
+			<h3>{{faculty.name}}
 				{% if not user.is_student and user.faculty.id == faculty.id %}
 					<a href="{% url 'update_personal_info' %}" class="btn btn-outline-info">Update</a>
 				{% endif %}
-			</h5>
+			</h3>
 			<hr>
-			<p>Name: {{faculty.name}}</p>
 			<p>Title: {{faculty.title}}</p>
 			<p>Office Phone: {{faculty.office_phone}}</p>
 			<p>Office Number: {{faculty.office_number}}</p>

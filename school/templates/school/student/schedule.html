@@ -1,0 +1,46 @@
+{% extends 'school/base.html' %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>My Classes</h5>
+            <table class="table table-sm">
+                <tr>
+					<th>Course</th>
+					<th>Sched #</th>
+					<th>Course Name</th>
+					<th>Units</th>
+					<th>Time</th>
+					<th>Day</th>
+					<th>Location</th>
+					<th>Instructor</th>
+					<th></th>
+				</tr>
+
+                {% for ip_course in in_progress_courses %}
+                <tr>
+                    <td>
+                        <a class="" href="{% url 'course_detail' ip_course.course.id %}">{{ip_course.course}}</a>
+                    </td>
+                    <td>{{ip_course.course.schedule_number}}</td>
+                    <td>{{ip_course.course.title}}</td>
+                    <td>{{ip_course.course.units}}</td>
+                    <td>{{ip_course.course.time}}</td>
+                    <td>{{ip_course.course.day}}</td>
+                    <td>{{ip_course.course.location}}</td>
+                    <td>{{ip_course.course.units}}</td>
+                    {% if user.is_student %}
+                    <td><a class="btn btn-sm btn-danger" href="{% url 'drop_course' ip_course.course.id %}">Drop</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
