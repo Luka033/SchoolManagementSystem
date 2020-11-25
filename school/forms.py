@@ -80,6 +80,12 @@ class UpdateFacultyDetailForm(ModelForm):
         fields = '__all__'
         exclude = ['user']
 
+class UpdateStudentOutlineForm(ModelForm):
+    class Meta:
+        model = Student_Outline
+        fields = '__all__'
+        exclude = ['student', 'course', 'date_edited', 'edited_by']
+
 
 class GradeForm(ModelForm):
     class Meta:

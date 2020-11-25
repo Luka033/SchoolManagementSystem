@@ -1,0 +1,24 @@
+{% extends 'school/base.html' %}
+
+{% load static %}
+{% block content %}
+
+<br>
+<div class="row">
+	<div class="col-md-6">
+		<div class="card card-body">
+
+            <p>Are you sure you want to remove {{course}} from {{student}}'s Major outline?</p>
+
+            <form method="POST" action="{% url 'remove_outline_course' pk=course.id pk2=student.id %}">
+                {% csrf_token %}
+                <a class="btn btn-warning" href="{% url 'student_outline' student.id %}">Cancel</a>
+
+                <input class="btn btn-danger" type="submit" name="Confirm">
+            </form>
+        </div>
+	</div>
+</div>
+
+
+{% endblock %}

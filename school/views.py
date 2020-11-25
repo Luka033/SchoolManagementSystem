@@ -1,3 +1,4 @@
+import pytz
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
@@ -10,7 +11,7 @@ from django.urls import reverse_lazy
 
 from .models import *
 from .forms import CourseForm, CreateUserForm, GradeForm, UpdateFacultyDetailForm, \
-    UpdateStudentDetailForm
+    UpdateStudentDetailForm, UpdateStudentOutlineForm
 from .filters import CourseFilter, FacultyFilter, StudentFilter
 from .decorators import unauthenticated_user, allowed_users, admin_only
 
@@ -24,7 +25,6 @@ from django.template.loader import get_template
 from django.views import View
 from xhtml2pdf import pisa
 
-from django.db.models import Avg
 
 
 
@@ -224,6 +224,88 @@ def student_detail(request, pk):
     }
     return render(request, 'school/student_detail.html', context)
 
+
+@login_required(login_url='login')
+def student_outline(request, pk):
+    """ Function-base: STUDENT OUTLINE view """
+
+    student = Student.objects.get(id=pk)
+    student_outline = student.student_outline_set.all()
+
+    department = student.major.department
+    possible_outline_courses = Course.objects.filter(department=department)
+
+
+    context = {
+        'student': student,
+        'student_outline': student_outline,
+        'possible_outline_courses': possible_outline_courses
+    }
+    return render(request, 'school/student_outline.html', context)
+
+@login_required(login_url='login')
+def edit_student_outline(request, pk, pk2):
+    if request.user.is_faculty:
+        faculty = request.user.faculty
+        student = Student.objects.get(id=pk2)
+        student_outline = Student_Outline.objects.get(id=pk)
+
+        form = UpdateStudentOutlineForm(instance=student_outline)
+
+        if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
+            form = UpdateStudentOutlineForm(request.POST, instance=student_outline)
+            if form.is_valid():
+                student_outline.date_edited = timezone.now()
+                form.save()
+                return redirect('student_outline', student.id)
+
+    context = {
+        'form': form,
+        'student': student,
+        'student_outline': student_outline
+    }
+    return render(request, 'school/edit_student_outline.html', context)
+
+
+@login_required(login_url='login')
+def add_outline_course(request, pk, pk2):
+    course = Course.objects.get(id=pk)
+    student = Student.objects.get(id=pk2)
+    faculty_name = request.user.faculty
+
+    if Student_Outline.objects.filter(course=course).exists():
+        messages.info(request, course.course_id + " is already in the " + student.name + "'s Major outline")
+        return redirect('student_outline', student.id)
+    if Students_Course.objects.filter(course=course).exists():
+        messages.info(request, student.name + " is already enrolled in or has completed " + course.course_id)
+        return redirect('student_outline', student.id)
+    else:
+        if request.method == 'POST':
+            new_student_outline_class = Student_Outline(student=student,
+                                                        course=course,
+                                                        status="Approved",
+                                                        edited_by=faculty_name)
+            new_student_outline_class.save()
+            return redirect('student_outline', student.id)
+
+    context = {'course': course,
+               'student': student}
+    return render(request, 'school/add_outline_course.html', context)
+
+@login_required(login_url='login')
+def remove_outline_course(request, pk, pk2):
+    course = Course.objects.get(id=pk)
+    student = Student.objects.get(id=pk2)
+    outline_course_to_delete = Student_Outline.objects.get(course=course)
+
+    if request.method == 'POST':
+        outline_course_to_delete.delete()
+
+        return redirect('student_outline', student.id)
+
+    context = {'course': course,
+               'student': student}
+    return render(request, 'school/remove_outline_course.html', context)
 
 class StudentDetailView(DetailView):
     model = Student
@@ -504,7 +586,6 @@ def add_course(request, pk):
 
 @login_required(login_url='login')
 def drop_course(request, pk):
-    print(pk)
     course = Course.objects.get(id=pk)
     id = request.user.student.id
     student = Student.objects.get(id=id)

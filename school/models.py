@@ -72,10 +72,6 @@ class Faculty(models.Model):
         return reverse('faculty_detail', kwargs={'pk': self.pk})
 
 
-# class Other_University_Course(models.Model):
-#     university_name = models.CharField(max_length=200, null=True)
-#     university_location = models.CharField(max_length=200, null=True)
-#     course_equivalent = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
 
 class Course(models.Model):
     NUM_UNITS = (
@@ -135,6 +131,23 @@ class Students_Course(models.Model):
 
     def __str__(self):
         return self.student.name + " - " + self.course.course_id
+
+class Student_Outline(models.Model):
+    STATUS = (
+        ('Approved', 'Approved'),
+        ('Waived', 'Waived'),
+        ('Dropped', 'Dropped')
+    )
+
+    student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL)
+    course = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
+    status = models.CharField(max_length=200, null=True, choices=STATUS)
+    notes = models.CharField(max_length=200, null=True, blank=True)
+    date_edited = models.DateTimeField(default=timezone.now, null=True)
+    edited_by = models.ForeignKey(Faculty, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.student.name + "'s Outline: " + self.course.course_id
 
 
 class Major(models.Model):

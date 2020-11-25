@@ -29,6 +29,10 @@ urlpatterns = [
 
     path('student_home/', views.student_home, name='student_home'),
     path('student/detail/<int:pk>', views.student_detail, name='student_detail'),
+    path('student/outline/<int:pk>', views.student_outline, name='student_outline'),
+    path('student/edit_student_outline/<int:pk>/<int:pk2>', views.edit_student_outline, name='edit_student_outline'),
+    path('student/add_outline_course/<int:pk>/<int:pk2>', views.add_outline_course, name='add_outline_course'),
+    path('student/remove_outline_course/<int:pk>/<int:pk2>', views.remove_outline_course, name='remove_outline_course'),
     path('student/course_registration/', views.course_registration, name='course_registration'),
     path('student/add_course/<int:pk>', views.add_course, name='add_course'),
     path('student/drop_course/<int:pk>', views.drop_course, name='drop_course'),
