@@ -135,6 +135,7 @@ class Students_Course(models.Model):
     def __str__(self):
         return self.student.name + " - " + self.course.course_id
 
+
 class Student_Outline(models.Model):
     STATUS = (
         ('Approved', 'Approved'),
