@@ -7,9 +7,9 @@
 
 {% block login-home %}
     {% if user.is_faculty %}
-        {% include 'school/faculty_home.html' %}
+        {% include 'school/faculty/home.html' %}
     {% else %}
-        {% include 'school/student_home.html' %}
+        {% include 'school/student/home.html' %}
     {% endif %}
 {% endblock login-home %}
 

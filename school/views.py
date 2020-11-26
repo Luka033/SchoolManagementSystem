@@ -13,7 +13,6 @@ from .models import *
 from .forms import CourseForm, CreateUserForm, GradeForm, UpdateFacultyDetailForm, \
     UpdateStudentDetailForm, UpdateStudentOutlineForm
 from .filters import CourseFilter, FacultyFilter, StudentFilter
-from .decorators import unauthenticated_user, allowed_users, admin_only
 
 from django.views.generic import CreateView, DetailView, ListView
 from school.forms import CustomUserCreationForm, StudentSignUpForm, FacultySignUpForm
@@ -24,10 +23,6 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views import View
 from xhtml2pdf import pisa
-
-
-
-
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 New Section:                            SIGN UP
@@ -83,13 +78,13 @@ class FacultySignUpView(CreateView):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-New Section:                       CATALOG VIEW
+New Section:                       CATALOG
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 '''___________________________ FACULTY CATALOG view ___________________________'''
 
 
-@login_required(login_url='login')
 def catalog_faculty(request):
     """ Function-base: FACULTY CATALOG view """
 
@@ -101,7 +96,7 @@ def catalog_faculty(request):
         'faculty_list': faculty_list,
         'filter': my_filter
     }
-    return render(request, 'school/catalog_faculty.html', context)
+    return render(request, 'school/catalog/faculty_list.html', context)
 
 
 class FacultyListView(ListView):
@@ -109,7 +104,7 @@ class FacultyListView(ListView):
 
     model = Faculty
     context_object_name = 'faculty_list'
-    template_name = 'school/catalog_faculty.html'
+    template_name = 'school/catalog/faculty_list.html'
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -125,7 +120,7 @@ class FacultyListView(ListView):
 
 @login_required(login_url='login')
 def catalog_student(request):
-    """ Function-base: STUDENT CATALOG view """
+    """ Function-based: STUDENT CATALOG view """
 
     student_list = Student.objects.all()
 
@@ -135,7 +130,48 @@ def catalog_student(request):
         'student_list': student_list,
         'filter': my_filter
     }
-    return render(request, 'school/catalog_student.html', context)
+    return render(request, 'school/catalog/student_list.html', context)
+
+
+'''__________________________ COURSE CATALOG view_________________________'''
+
+
+class CourseListView(ListView):
+    """ Class-based: COURSE CATALOG view """
+    model = Course
+    template_name = 'school/catalog/course_list.html'
+
+
+def catalog_course(request):
+    courses = Course.objects.all()
+
+    my_filter = CourseFilter(request.GET, queryset=courses)
+    courses = my_filter.qs
+    context = {
+        'courses': courses,
+        'filter': my_filter
+    }
+    return render(request, 'school/catalog/course_list.html', context)
+
+
+'''__________________________ MAJOR CATALOG view_________________________'''
+
+
+class MajorListView(ListView):
+    """ Class-based: MAJOR CATALOG view """
+    model = Major
+    template_name = 'school/catalog/major_list.html'
+
+
+def majors(request):
+    """ Function-based: MAJOR CATALOG view """
+    majors = Major.objects.all().order_by('department')
+    return render(request, 'school/catalog/major_list.html', {'majors': majors})
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             ACCOUNT
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 '''_________________________ UPDATE PERSONAL INFO view ____________________________'''
@@ -190,15 +226,14 @@ def student_home(request):
     completed_courses = student.students_course_set.filter(status="Completed")
     in_progress_courses = student.students_course_set.filter(status="In Progress")
 
-
-
     context = {
+
         'student': student,
         'completed_courses': completed_courses,
         'in_progress_courses': in_progress_courses,
 
     }
-    return render(request, 'school/student_detail.html', context)
+    return render(request, 'school/student/home.html', context)
 
 
 '''___________________________ STUDENT DETAIL view ___________________________'''
@@ -222,7 +257,7 @@ def student_detail(request, pk):
         'in_progress_courses': in_progress_courses,
         'student_gpa': student_gpa
     }
-    return render(request, 'school/student_detail.html', context)
+    return render(request, 'school/student/detail.html', context)
 
 
 @login_required(login_url='login')
@@ -310,7 +345,7 @@ def remove_outline_course(request, pk, pk2):
 class StudentDetailView(DetailView):
     model = Student
     context_obj_name = 'student'
-    template_name = 'school/student_detail.html'
+    template_name = 'school/student/detail.html'
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -319,6 +354,44 @@ class StudentDetailView(DetailView):
         context['completed_courses'] = context.students_course_set.filter(status="Completed")
         context['in_progress_courses'] = context.students_course_set.filter(status="In Progress")
         return context
+
+
+'''___________________________ STUDENT SCHEDULE view ___________________________'''
+
+
+class StudentScheduleView(DetailView):
+    model = Student
+    context_obj_name = 'student'
+    template_name = 'school/student/schedule.html'
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        context['completed_courses'] = context.students_course_set.filter(status="Completed")
+        context['in_progress_courses'] = context.students_course_set.filter(status="In Progress")
+        return context
+
+
+@login_required(login_url='login')
+def student_schedule(request, pk):
+    """ Function-base: STUDENT Schedule view """
+
+    student = Student.objects.get(id=pk)
+    completed_courses = student.students_course_set.filter(status="Completed")
+    in_progress_courses = student.students_course_set.filter(status="In Progress")
+
+    student_grades = list(completed_courses.values("grade"))
+
+    student_gpa = grade_converter(student_grades)
+
+    context = {
+        'student': student,
+        'completed_courses': completed_courses,
+        'in_progress_courses': in_progress_courses,
+        'student_gpa': student_gpa
+    }
+    return render(request, 'school/student/schedule.html', context)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -335,7 +408,7 @@ def faculty_home(request):
     context = {
         'faculty': request.user.faculty,
     }
-    return render(request, 'school/faculty_home.html', context)
+    return render(request, 'school/faculty/home.html', context)
 
 
 class FacultyHomeView(DetailView):
@@ -343,7 +416,7 @@ class FacultyHomeView(DetailView):
 
     model = Faculty
     context_object_name = 'faculty'
-    template_name = 'school/faculty_detail.html'
+    template_name = 'school/faculty/home.html'
 
 
 '''________________________________ FACULTY DETAIL view _______________________________'''
@@ -356,7 +429,7 @@ def faculty_detail(request, pk):
     context = {
         'faculty': faculty,
     }
-    return render(request, 'school/faculty_detail.html', context)
+    return render(request, 'school/faculty/detail.html', context)
 
 
 class FacultyDetailView(DetailView):
@@ -364,14 +437,14 @@ class FacultyDetailView(DetailView):
 
     model = Faculty
     context_object_name = 'faculty'
-    template_name = 'school/faculty_detail.html'
+    template_name = 'school/faculty/detail.html'
 
 
 '''________________________________ FACULTY COURSE view ________________________________'''
 
 
 @login_required(login_url='login')
-def teaching_schedule(request):
+def faculty_schedule(request):
     """ Function-base: FACULTY COURSE view """
 
     faculty = request.user.faculty
@@ -381,14 +454,179 @@ def teaching_schedule(request):
         'faculty': faculty,
         'courses': courses,
     }
-    return render(request, 'school/teaching_schedule.html', context)
+    return render(request, 'school/faculty/schedule.html', context)
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             COURSE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+'''_____________________________ Course DETAIL view _________________________________'''
+
+
+@login_required(login_url='login')
+def course_details(request, pk):
+    course = Course.objects.get(id=pk)
+    prerequisites = course.prerequisites.all()
+
+    context = {'course': course,
+               'prerequisites': prerequisites}
+    return render(request, 'school/course/detail.html', context)
+
+
+'''_____________________________ COURSE REGISTRATION view _________________________________'''
+
+
+@login_required(login_url='login')
+def course_registration(request):
+    courses = Course.objects.all()
+
+    my_filter = CourseFilter(request.GET, queryset=courses)
+    courses = my_filter.qs
+    context = {'courses': courses,
+               'filter': my_filter
+               }
+    return render(request, 'school/course/registration.html', context)
+
+
+'''_____________________________ ADD COURSE view _________________________________'''
+
+
+@login_required(login_url='login')
+def add_course(request, pk):
+    user = request.user
+    course = Course.objects.get(id=pk)
+
+    if user.is_student and request.method == 'POST':
+
+        student = Student.objects.get(id=user.student.id)
+        completed_courses = [i.course for i in student.students_course_set.filter(status="Completed")]
+
+        # Cannot enroll if already enrolled in th section
+        if student.students_course_set.filter(course=course).exists():
+            messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
+
+        # Cannot enroll if the section is full
+        elif course.seats_open == 0:
+            messages.info(request, course.course_id + " has no available seats")
+
+        # Cannot enroll in a upper division if student doesnt declared
+        elif course.course_level == "Under-graduate" and student.major not in majors:
+            messages.info(request, 'Your Major/Minor is not allowed in' + course.course_id)
+
+        # Cannot enroll if student does not meet the prerequisites:
+        elif not all(x in completed_courses for x in course.prerequisites.all()):
+            messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
+
+        # Cannot enroll in Graduate course if still in undergrad
+        elif course.course_level == "Graduate" and not student.graduate_student:
+            messages.info(request, course.course_id + " is for Graduate students only")
+
+        # Else allow student to enroll
+        else:
+            new_student_class = Students_Course(student=student, course=course, status="In Progress")
+            new_student_class.save()
+            course.seats_open -= 1
+            course.save()
+            messages.info(request, 'Successfully enrolled in ' + course.course_id)
+
+        return redirect('course_registration')
+
+    return render(request, 'school/course/add_course.html', {'course': course})
+
+
+'''_____________________________ DROP Course view _________________________________'''
+
+
+@login_required(login_url='login')
+def drop_course(request, pk):
+    user = request.user
+    student = Student.objects.get(id=user.student.id)
+    course = Course.objects.get(id=pk)
+
+    class_to_drop = student.students_course_set.filter(course=course)
+    # num_students = Students_Course.objects.filter(course=course).count()
+
+    if request.method == 'POST':
+        class_to_drop.delete()
+        course.seats_open += 1
+        course.save()
+
+        return redirect('student_home')
+
+    context = {'course': course}
+    return render(request, 'school/course/drop_course.html', context)
+
+
+'''_____________________________ END Course view _________________________________'''
+
+
+@login_required(login_url='login')
+def end_course(request, pk):
+    course = Course.objects.get(id=pk)
+
+    if request.method == 'POST':
+        student_list = Students_Course.objects.filter(course=course)
+
+        for student in student_list:
+            if student.grade is None:
+                messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
+                                                              'before you can end the course')
+                return redirect('course_grades')
+            else:
+
+                student.status = "Completed"
+                print("STUDENT STATUS FOR COURSE: ", student.status)
+                student.save()
+
+        return redirect('course_grades')
+
+    context = {'course': course}
+    return render(request, 'school/course/end_course.html', context)
+
+
+'''_____________________________ Course STATISTICS view _________________________________'''
+
+
+@login_required(login_url='login')
+def course_statistics(request, pk):
+    course = Course.objects.get(id=pk)
+    student_list = Students_Course.objects.filter(course=course)
+    grades = list(student_list.values("grade"))
+    average_digit_grade = grade_converter(grades)
+    average_letter_grade = grade_digit_to_letter(average_digit_grade)
+
+    num_passing_grade = student_list.exclude(grade="F").exclude(grade=None).count()
+    num_of_students = course.capacity - course.seats_open
+
+    grade_A = student_list.filter(grade="A").count() / num_of_students * 100 \
+        if num_of_students != 0 else 0
+    grade_B = student_list.filter(grade="B").count() / num_of_students * 100 \
+        if num_of_students != 0 else 0
+    grade_C = student_list.filter(grade="C").count() / num_of_students * 100 \
+        if num_of_students != 0 else 0
+    grade_D = student_list.filter(grade="D").count() / num_of_students * 100 \
+        if num_of_students != 0 else 0
+    grade_F = student_list.filter(grade="F").count() / num_of_students * 100 \
+        if num_of_students != 0 else 0
+
+    context = {'course': course,
+               'num_passing_grade': num_passing_grade,
+               'average_letter_grade': average_letter_grade,
+               'grade_A': grade_A,
+               'grade_B': grade_B,
+               'grade_C': grade_C,
+               'grade_D': grade_D,
+               'grade_F': grade_F}
+    return render(request, 'school/course/course_statistics.html', context)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 New Section:                             GRADE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-'''_____________________________ COURSE GRADE view _________________________________'''
+'''_____________________________ Course Grade view _________________________________'''
 
 
 @login_required(login_url='login')
@@ -404,40 +642,10 @@ def course_grades(request):
     context = {
         'student_course_dic': student_course_dic
     }
-    return render(request, 'school/course_grades.html', context)
-
-@login_required(login_url='login')
-def course_statistics(request, pk):
-    course = Course.objects.get(id=pk)
-
-    student_list = Students_Course.objects.filter(course=course)
-
-    grades = list(student_list.values("grade"))
-    average_digit_grade = grade_converter(grades)
-    average_letter_grade = grade_digit_to_letter(average_digit_grade)
+    return render(request, 'school/course/course_grades.html', context)
 
 
-    num_passing_grade = student_list.exclude(grade="F").exclude(grade=None).count()
-    grade_A = student_list.filter(grade="A").count() / course.seats_occupied * 100 \
-        if course.seats_occupied != 0 else 0
-    grade_B = student_list.filter(grade="B").count() / course.seats_occupied * 100 \
-        if course.seats_occupied != 0 else 0
-    grade_C = student_list.filter(grade="C").count() / course.seats_occupied * 100 \
-        if course.seats_occupied != 0 else 0
-    grade_D = student_list.filter(grade="D").count() / course.seats_occupied * 100 \
-        if course.seats_occupied != 0 else 0
-    grade_F = student_list.filter(grade="F").count() / course.seats_occupied * 100 \
-        if course.seats_occupied != 0 else 0
-
-    context = {'course': course,
-               'num_passing_grade': num_passing_grade,
-                'average_letter_grade': average_letter_grade,
-               'grade_A': grade_A,
-               'grade_B': grade_B,
-               'grade_C': grade_C,
-               'grade_D': grade_D,
-               'grade_F': grade_F}
-    return render(request, 'school/course_statistics.html', context)
+'''_____________________________ UPDATE Grade view _________________________________'''
 
 
 def update_grade(request, pk):
@@ -452,34 +660,9 @@ def update_grade(request, pk):
     context = {
         'form': form,
     }
-    return render(request, 'school/update_grade.html', context)
-
-@login_required(login_url='login')
-def end_course(request, pk):
-    course = Course.objects.get(id=pk)
-
-    if request.method == 'POST':
-        student_list = Students_Course.objects.filter(course=course)
-        for student in student_list:
-            if student.grade == None:
-                messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
-                                                              'before you can end the course')
-                return redirect('course_grades')
-            else:
-
-                student.status = "Completed"
-                print("STUDENT STATUS FOR COURSE: ", student.status)
-                student.save()
-
-        return redirect('course_grades')
-
-    context = {'course': course}
-    return render(request, 'school/end_course.html', context)
+    return render(request, 'school/course/update_grade.html', context)
 
 
-# This section manages views concerning STUDENTS ONLY
-# =============================================================
-# =============================================================
 def grade_digit_to_letter(grade):
     if grade >= 3.5:
         return "A"
@@ -604,32 +787,14 @@ def drop_course(request, pk):
     return render(request, 'school/drop_course.html', context)
 
 
-# This section manages views concerning STUDENTS and FACULTY
-# =============================================================
-# =============================================================
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             MAJOR
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
 
 def major_course_requirements(request):
-    return render(request, 'school/major_requirements.html')
-
-
-@login_required(login_url='login')
-def course_details(request, pk):
-    course = Course.objects.get(id=pk)
-    prerequisites = course.prerequisites.all()
-
-    context = {'course': course,
-               'prerequisites': prerequisites}
-    return render(request, 'school/course_details.html', context)
-
-
-
-
-@login_required(login_url='login')
-def majors(request):
-    majors = Major.objects.all().order_by('department')
-
-    context = {'majors': majors}
-    return render(request, 'school/majors.html', context)
+    return render(request, 'school/major/major_requirements.html')
 
 
 def major_requirements_details(request, pk):
@@ -640,7 +805,12 @@ def major_requirements_details(request, pk):
                'required_courses': required_courses,
                'electives': electives
                }
-    return render(request, 'school/major_requirements_details.html', context)
+    return render(request, 'school/major/major_requirements_details.html', context)
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             PDF Report
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 def render_to_pdf(template_src, context_dict={}):
@@ -684,7 +854,6 @@ class student_report_pdf(View):
 
         pdf = render_to_pdf('school/student_report_pdf.html', get_student_data(request, pk))
         return HttpResponse(pdf, content_type='application/pdf')
-
 
 
 def get_grade_sheet_data(request, pk):

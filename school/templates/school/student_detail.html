@@ -12,7 +12,7 @@
                     <h3>My Info
                     <a href="{% url 'update_personal_info' %}" class="btn btn-outline-info">Update</a>
                 {% else %}
-                    <h3>{{student.name}}'s Info
+                    </h3>{{student.name}}'s Info
                 {% endif %}
             </h3>
             <hr>
@@ -27,8 +27,9 @@
                 <td><a class="btn btn-info" href="{% url 'student_outline' student.id %}" >View Student Outline</a></td>
             {% endif %}
             <br>
-            <td><a class="btn btn-info" href="{% url 'student_report_pdf' student.id %}" target="_blank">View Student Report</a></td>
-
+            <td>
+                <a class="btn btn-info" href="{% url 'student_report_pdf' student.id %}" target="_blank">View Student Report</a>
+            </td>
         </div>
     </div>
     <div class="col-md">

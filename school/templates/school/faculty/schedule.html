@@ -8,25 +8,28 @@
 			<h5>Courses Teaching</h5>
 			<table class="table table-sm">
 				<tr>
-					<th>View</th>
 					<th>Course ID</th>
                     <th>Sched #</th>
-					<th>Time</th>
-                    <th>Location</th>
+					<th>Course Name</th>
 					<th>Units</th>
-                    <th>Grade Sheet</th>
+					<th>Time</th>
+					<th>Day</th>
+					<th>Location</th>
 					<th></th>
 				</tr>
 
 				{% for course in courses %}
 					<tr>
-						<td><a class="btn btn-sm btn-info" href="{% url 'course_detail' course.id %}">View Course</a></td>
-						<td>{{course.course_id}}</td>
+						<td>
+							<a class="" href="{% url 'course_detail' course.id %}">{{course.course_id}}</a>
+						</td>
                         <td>{{course.schedule_number}}</td>
-						<td>{{course.time}}</td>
-                        <td>{{course.location}}</td>
+						<td>{{course.title}}</td>
 						<td>{{course.units}}</td>
-						<td><a class="btn btn-sm btn-info" href="{% url 'grade_sheet_pdf' course.id %}">Print Grade Sheet</a></td>
+						<td>{{course.time}}</td>
+						<td>{{course.day}}</td>
+                        <td>{{course.location}}</td>
+						<td><a class="" href="{% url 'grade_sheet_pdf' course.id %}">Print Grade Sheet</a></td>
 					</tr>
 				{% endfor %}
 
