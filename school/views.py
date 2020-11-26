@@ -24,6 +24,8 @@ from django.template.loader import get_template
 from django.views import View
 from xhtml2pdf import pisa
 
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 New Section:                            SIGN UP
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -257,7 +259,7 @@ def student_detail(request, pk):
         'in_progress_courses': in_progress_courses,
         'student_gpa': student_gpa
     }
-    return render(request, 'school/student/detail.html', context)
+    return render(request, 'school/student_detail.html', context)
 
 
 @login_required(login_url='login')
@@ -708,83 +710,83 @@ class CourseListView(ListView):
     model = Course
     template_name = 'catalog/courses_list.html'
 
-
-@login_required(login_url='login')
-def course_registration(request):
-    courses = Course.objects.all()
-
-    my_filter = CourseFilter(request.GET, queryset=courses)
-    courses = my_filter.qs
-    context = {'courses': courses,
-               'filter': my_filter
-               }
-    return render(request, 'school/course_registration.html', context)
-
-
-@login_required(login_url='login')
-def add_course(request, pk):
-    course = Course.objects.get(id=pk)
-    id = request.user.student.id
-    student = Student.objects.get(id=id)
-    completed_courses = []
-    prereq = course.prerequisites.all()
-    students_completed_courses = student.students_course_set.filter(status="Completed")
-    for i in students_completed_courses:
-        completed_courses.append(i.course)
-
-    if student.students_course_set.filter(course=course).exists():
-        messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
-        return redirect('course_registration')
-
-    if course.seats_occupied + 1 > course.seats_available:
-        messages.info(request, course.course_id + " has no available seats")
-        return redirect('course_registration')
-
-    majors = course.required_by_majors.all()
-    if course.course_level == "Upper-division" and majors:
-        if student.major not in majors:
-            messages.info(request, course.course_id + " is restricted to students of that declared major only")
-            return redirect('course_registration')
-
-    if course.course_level == "Graduate" and not student.graduate_student:
-        messages.info(request, course.course_id + " is for Graduate students only")
-        return redirect('course_registration')
-
-    if not all(x in completed_courses for x in prereq):
-        messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
-        return redirect('course_registration')
-    else:
-        if request.method == 'POST':
-            new_student_class = Students_Course(student=student, course=course, status="In Progress")
-            new_student_class.save()
-
-            course.seats_occupied += 1
-            course.save()
-
-            return redirect('course_registration')
-
-    context = {'course': course}
-    return render(request, 'school/add_course.html', context)
-
-
-@login_required(login_url='login')
-def drop_course(request, pk):
-    course = Course.objects.get(id=pk)
-    id = request.user.student.id
-    student = Student.objects.get(id=id)
-    class_to_drop = student.students_course_set.filter(course=course)
-    num_students = Students_Course.objects.filter(course=course).count()
-
-    if request.method == 'POST':
-        class_to_drop.delete()
-
-        course.seats_occupied = num_students - 1
-        course.save()
-
-        return redirect('student_home')
-
-    context = {'course': course}
-    return render(request, 'school/drop_course.html', context)
+#
+# @login_required(login_url='login')
+# def course_registration(request):
+#     courses = Course.objects.all()
+#
+#     my_filter = CourseFilter(request.GET, queryset=courses)
+#     courses = my_filter.qs
+#     context = {'courses': courses,
+#                'filter': my_filter
+#                }
+#     return render(request, 'school/course_registration.html', context)
+#
+#
+# @login_required(login_url='login')
+# def add_course(request, pk):
+#     course = Course.objects.get(id=pk)
+#     id = request.user.student.id
+#     student = Student.objects.get(id=id)
+#     completed_courses = []
+#     prereq = course.prerequisites.all()
+#     students_completed_courses = student.students_course_set.filter(status="Completed")
+#     for i in students_completed_courses:
+#         completed_courses.append(i.course)
+#
+#     if student.students_course_set.filter(course=course).exists():
+#         messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
+#         return redirect('course_registration')
+#
+#     if course.seats_occupied + 1 > course.seats_available:
+#         messages.info(request, course.course_id + " has no available seats")
+#         return redirect('course_registration')
+#
+#     majors = course.required_by_majors.all()
+#     if course.course_level == "Upper-division" and majors:
+#         if student.major not in majors:
+#             messages.info(request, course.course_id + " is restricted to students of that declared major only")
+#             return redirect('course_registration')
+#
+#     if course.course_level == "Graduate" and not student.graduate_student:
+#         messages.info(request, course.course_id + " is for Graduate students only")
+#         return redirect('course_registration')
+#
+#     if not all(x in completed_courses for x in prereq):
+#         messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
+#         return redirect('course_registration')
+#     else:
+#         if request.method == 'POST':
+#             new_student_class = Students_Course(student=student, course=course, status="In Progress")
+#             new_student_class.save()
+#
+#             course.seats_occupied += 1
+#             course.save()
+#
+#             return redirect('course_registration')
+#
+#     context = {'course': course}
+#     return render(request, 'school/add_course.html', context)
+#
+#
+# @login_required(login_url='login')
+# def drop_course(request, pk):
+#     course = Course.objects.get(id=pk)
+#     id = request.user.student.id
+#     student = Student.objects.get(id=id)
+#     class_to_drop = student.students_course_set.filter(course=course)
+#     num_students = Students_Course.objects.filter(course=course).count()
+#
+#     if request.method == 'POST':
+#         class_to_drop.delete()
+#
+#         course.seats_occupied = num_students - 1
+#         course.save()
+#
+#         return redirect('student_home')
+#
+#     context = {'course': course}
+#     return render(request, 'school/drop_course.html', context)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
