@@ -538,7 +538,7 @@ def add_course(request, pk):
             # Seats_open cannot be negative
             if course.seats_open > 0:
                 course.seats_open -= 1
-                
+
             course.save()
             messages.info(request, 'Successfully enrolled in ' + course.course_id)
 
@@ -555,18 +555,22 @@ def drop_course(request, pk):
     user = request.user
     student = Student.objects.get(id=user.student.id)
     course = Course.objects.get(id=pk)
-
-    class_to_drop = student.students_course_set.filter(course=course)
-    # num_students = Students_Course.objects.filter(course=course).count()
+    class_to_drop = student.students_course_set.get(course=pk)
 
     if request.method == 'POST':
         class_to_drop.delete()
-        course.seats_open += 1
+
+        # Seats_open cannot be greater than capacity
+        if course.seats_open <= course.capacity:
+            course.seats_open += 1
+
         course.save()
+        messages.info(request, 'Successfully dropped ' + course.course_id)
+        return redirect('student_schedule', user.student.id)
 
-        return redirect('student_home')
-
-    context = {'course': course}
+    context = {
+        'course': course
+    }
     return render(request, 'school/course/drop_course.html', context)
 
 
