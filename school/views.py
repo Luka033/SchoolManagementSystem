@@ -505,9 +505,13 @@ def add_course(request, pk):
         student = Student.objects.get(id=user.student.id)
         completed_courses = [i.course for i in student.students_course_set.filter(status="Completed")]
 
-        # Cannot enroll if already enrolled in th section
-        if student.students_course_set.filter(course=course).exists():
-            messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
+        # Cannot enroll if student already completed this course in previous term
+        if course in completed_courses:
+            messages.info(request, 'You have already completed ' + course.course_id)
+
+        # Cannot enroll if already enrolled in this section at current term
+        elif student.students_course_set.filter(course=course).exists():
+            messages.info(request, 'You are already enrolling in ' + course.course_id)
 
         # Cannot enroll if the section is full
         elif course.seats_open == 0:
@@ -517,19 +521,24 @@ def add_course(request, pk):
         elif course.course_level == "Under-graduate" and student.major not in majors:
             messages.info(request, 'Your Major/Minor is not allowed in' + course.course_id)
 
-        # Cannot enroll if student does not meet the prerequisites:
-        elif not all(x in completed_courses for x in course.prerequisites.all()):
-            messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
-
         # Cannot enroll in Graduate course if still in undergrad
         elif course.course_level == "Graduate" and not student.graduate_student:
             messages.info(request, course.course_id + " is for Graduate students only")
+
+        # Cannot enroll if student does not meet the prerequisites:
+        elif not all(x in completed_courses for x in course.prerequisites.all()):
+            messages.info(request, 'You have not met the prerequisites for ' + course.course_id +
+                          '. Please check the prerequisites note for this course.')
 
         # Else allow student to enroll
         else:
             new_student_class = Students_Course(student=student, course=course, status="In Progress")
             new_student_class.save()
-            course.seats_open -= 1
+
+            # Seats_open cannot be negative
+            if course.seats_open > 0:
+                course.seats_open -= 1
+                
             course.save()
             messages.info(request, 'Successfully enrolled in ' + course.course_id)
 

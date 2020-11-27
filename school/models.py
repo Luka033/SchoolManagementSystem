@@ -72,7 +72,6 @@ class Faculty(models.Model):
         return reverse('faculty_detail', kwargs={'pk': self.pk})
 
 
-
 class Course(models.Model):
     NUM_UNITS = (
         ('1', '1'),
