@@ -876,26 +876,18 @@ def get_grade_sheet_data(request, pk):
     student_list = Students_Course.objects.filter(course=course)
 
     data = {
-        "course_ID": course.course_id,
-        "name": course.name,
-
-        "department": course.department,
-        "schedule_number": course.schedule_number,
-        "instructor": course.instructor,
-        "units": course.units,
-
-        "start_date": course.start_date,
-        "end_date": course.end_date,
-        "time": course.time,
-
-        "student_list": student_list,
+        'course': course,
+        'student_list': student_list,
+        'total_students': len(student_list),
     }
+
     return data
 
 
 # Opens up page as PDF
 class grade_sheet_pdf(View):
     def get(self, request, pk, *args, **kwargs):
-
+        data = get_grade_sheet_data(request, pk)
         pdf = render_to_pdf('school/grade_sheet_pdf.html', get_grade_sheet_data(request, pk))
-        return HttpResponse(pdf, content_type='application/pdf')
+
+        return HttpResponse(pdf, content_type='application/pdf' )
