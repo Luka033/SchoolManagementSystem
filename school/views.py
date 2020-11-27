@@ -259,7 +259,7 @@ def student_detail(request, pk):
         'in_progress_courses': in_progress_courses,
         'student_gpa': student_gpa
     }
-    return render(request, 'school/student_detail.html', context)
+    return render(request, 'school/student/detail.html', context)
 
 
 @login_required(login_url='login')
