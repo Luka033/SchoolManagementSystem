@@ -52,7 +52,7 @@
                     <a class="nav-link active" href="{% url 'student_schedule' user.student.id %}">My Course Schedule</a>
                 </li>
                 <li class="nav-item ">
-                    <a class="nav-link active" href="">My Grades</a>
+                    <a class="nav-link active" href="{% url 'course_grades' user.student.id %}">My Grades</a>
                 </li>
                 <li class="nav-item ">
                     <a class="nav-link active" href="{% url 'student_outline' user.student.id %}">My Outline</a>

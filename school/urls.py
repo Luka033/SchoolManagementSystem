@@ -29,6 +29,7 @@ urlpatterns = [
 
     path('student_home/', views.student_home, name='student_home'),
     path('student/detail/<int:pk>', views.student_detail, name='student_detail'),
+    path('student/course_grades/<int:pk>', views.course_grades, name='course_grades'),
     path('student/outline/<int:pk>', views.student_outline, name='student_outline'),
     path('student/edit_student_outline/<int:pk>/<int:pk2>', views.edit_student_outline, name='edit_student_outline'),
     path('student/add_outline_course/<int:pk>/<int:pk2>', views.add_outline_course, name='add_outline_course'),

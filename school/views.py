@@ -645,19 +645,36 @@ New Section:                             GRADE
 
 
 @login_required(login_url='login')
-def course_grades(request):
-    faculty = request.user.faculty
-    courses = faculty.course_set.all()
+def course_grades(request, pk):
+    user = request.user
 
-    student_course_dic = {}
-    for course in courses:
-        student_list = Students_Course.objects.filter(course=course)
-        student_course_dic[course] = student_list
+    if user.is_faculty:
+        faculty = user.faculty
+        courses = faculty.course_set.all()
 
-    context = {
-        'student_course_dic': student_course_dic
-    }
-    return render(request, 'school/course/course_grades.html', context)
+        student_course_dic = {}
+        for course in courses:
+            student_list = Students_Course.objects.filter(course=course)
+            student_course_dic[course] = student_list
+            context = {
+                'student_course_dic': student_course_dic
+            }
+        print('hey')
+        return render(request, 'school/faculty/course_grades.html', context)
+
+    elif user.is_student:
+        student = user.student
+        student_course_query = Students_Course.objects.filter(student=student)
+
+        course_list_query = list(student_course_query.values("course"))
+        course_list = [Course.objects.get(id=item["course"]) for item in course_list_query]
+        grade_list = [item["grade"] for item in list(student_course_query.values("grade"))]
+
+        context = {
+            'grade_dict': dict(zip(course_list, grade_list))
+        }
+
+        return render(request, 'school/student/grades.html', context)
 
 
 '''_____________________________ UPDATE Grade view _________________________________'''
