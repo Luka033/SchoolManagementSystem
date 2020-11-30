@@ -272,13 +272,12 @@ def student_outline(request, pk):
     department = student.major.department
     possible_outline_courses = Course.objects.filter(department=department)
 
-
     context = {
         'student': student,
         'student_outline': student_outline,
         'possible_outline_courses': possible_outline_courses
     }
-    return render(request, 'school/student_outline.html', context)
+    return render(request, 'school/student/outline.html', context)
 
 @login_required(login_url='login')
 def edit_student_outline(request, pk, pk2):

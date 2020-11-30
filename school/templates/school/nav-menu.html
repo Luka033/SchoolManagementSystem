@@ -38,7 +38,7 @@
                     <a class="nav-link active" href="{% url 'faculty_schedule' %}">My Teaching Schedule</a>
                 </li>
                 <li class="nav-item ">
-                    <a class="nav-link active" href="{% url 'course_grades' %}">My Student Grades</a>
+                    <a class="nav-link active" href="{% url 'course_grades' user.faculty.id %}">My Student Grades</a>
                 </li>
                 <li class="nav-item ">
                     <a class="nav-link active" href="{% url 'faculty_detail' user.faculty.id %}">My Info</a>
