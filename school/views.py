@@ -587,14 +587,14 @@ def end_course(request, pk):
             if student.grade is None:
                 messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
                                                               'before you can end the course')
-                return redirect('course_grades')
+                return redirect('course_grades', pk)
             else:
 
                 student.status = "Completed"
                 print("STUDENT STATUS FOR COURSE: ", student.status)
                 student.save()
 
-        return redirect('course_grades')
+        return redirect('course_grades', pk)
 
     context = {'course': course}
     return render(request, 'school/course/end_course.html', context)
@@ -686,7 +686,7 @@ def update_grade(request, pk):
         form = GradeForm(request.POST, instance=student_course)
         if form.is_valid():
             form.save()
-            return redirect('course_grades')
+            return redirect('course_grades', pk)
 
     context = {
         'form': form,
