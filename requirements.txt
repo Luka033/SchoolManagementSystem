@@ -4,3 +4,4 @@ django-filter
 django-crispy-forms
 django-bootstrap-modal-forms
 django-widget-tweaks
+xhtml2pdf
