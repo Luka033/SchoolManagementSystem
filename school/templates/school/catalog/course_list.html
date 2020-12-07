@@ -8,6 +8,9 @@
 		<div class="card card-body">
 			<form method="get">
 <!--			{{filter.form.as_p}}-->
+			<a class="navbar-brand" href="" data-toggle="tooltip" title="1. Filter course&#013;2. Search courses&#013;3. Add course">
+            	<img src="{% static 'assets/images/help-logo.png' %}" alt="My image" width="40" height="40" >
+			</a>
 
 			{{filter.form.department.label}}
 			<a data-toggle="tooltip" title="Search course by department">{{filter.form.department}}</a>

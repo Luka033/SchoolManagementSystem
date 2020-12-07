@@ -617,14 +617,17 @@ def end_course(request, pk):
 
     if request.method == 'GET':
         student_list = Students_Course.objects.filter(course=course)
-
         for student in student_list:
-            if student.grade is None:
+            if str(student.status) == str("Completed"):
+                messages.info(request, 'This class is already ended')
+                return redirect('course_grades', request.user.faculty.id)
+
+            elif student.grade is None:
                 messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
                                                               'before you can end the course')
                 return redirect('course_grades', request.user.faculty.id)
-            else:
 
+            else:
                 student.status = "Completed"
                 messages.info(request, 'You have successfully ended ' + course.course_id)
                 student.save()
@@ -772,7 +775,6 @@ New Section:                             PDF Report
 
 
 def render_to_pdf(template_src, context_dict={}):
-
     template = get_template(template_src)
     html = template.render(context_dict)
     result = BytesIO()
