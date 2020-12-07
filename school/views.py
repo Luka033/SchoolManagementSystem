@@ -227,7 +227,6 @@ def update_personal_info(request):
 
     elif request.user.is_student:
         student = request.user.student
-        print(student)
         form = UpdateStudentDetailForm(instance=student)
 
         if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
@@ -700,7 +699,7 @@ def course_grades(request, pk):
             context = {
                 'student_course_dic': student_course_dic
             }
-        print('hey')
+
         return render(request, 'school/faculty/course_grades.html', context)
 
     elif user.is_student:

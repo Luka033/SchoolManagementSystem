@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from school.models import *
 from school.views import grade_converter
-import json
 from school.views import grade_converter, grade_digit_to_letter
 import pytest_django
 
