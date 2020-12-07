@@ -1,0 +1,81 @@
+{% extends 'school/base.html' %}
+
+{% block content %}
+
+<br>
+
+
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>{{student}}'s Student Outline</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>View</th>
+                    <th>Course ID</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                    <th>Edited By</th>
+                    <th>Date Edited</th>
+					{% if user.is_faculty %}
+                    	<th>Edit</th>
+                    	<th>Remove</th>
+					{% endif %}
+                </tr>
+
+                {% for outline_course in student_outline %}
+                <tr>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_detail' outline_course.course.id %}">View</a></td>
+                    <td>{{outline_course.course.course_id}}</td>
+                    <td>{{outline_course.status}}</td>
+                    <td>{{outline_course.notes}}</td>
+                    <td>{{outline_course.edited_by.name}}</td>
+                    <td>{{outline_course.date_edited}}</td>
+					{% if user.is_faculty %}
+						<td><a class="btn btn-sm btn-warning" href="{% url 'edit_student_outline' pk=outline_course.id pk2=student.id %}">Edit</a></td>
+						<td><a class="btn btn-sm btn-danger" href="{% url 'remove_outline_course' pk=outline_course.course.id pk2=student.id %}">Remove</a></td>
+					{% endif %}
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if user.is_faculty %}
+<div class="col-md">
+		<h5>MAJOR COURSES:</h5>
+        {% for message in messages %}
+			<p>{{message}}</p>
+		{% endfor %}
+		<hr>
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>View Course</th>
+					<th>Course ID</th>
+					<th>Course Name</th>
+					<th>Time</th>
+					<th>Instructor</th>
+					<th>Units</th>
+					<th>Add</th>
+				</tr>
+
+				{% for course in possible_outline_courses %}
+					<tr>
+						<td><a class="btn btn-sm btn-info" href="{% url 'course_detail' course.id %}">View</a></td>
+						<td>{{course.course_id}}</td>
+						<td>{{course.title}}</td>
+						<td>{{course.time}}</td>
+						<td>{{course.instructor}}</td>
+						<td>{{course.units}}</td>
+						<td><a class="btn btn-sm btn-success" href="{% url 'add_outline_course' pk=course.id pk2=student.id %}">Add to Outline</a></td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+{% endif %}
+{% endblock %}

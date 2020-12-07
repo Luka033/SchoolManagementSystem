@@ -1,0 +1,93 @@
+{% extends 'school/base.html' %}
+
+{% block content %}
+
+<br>
+
+<div class="row">
+
+    <div class="col-md">
+        <div class="card card-body">
+                {% if user.is_student %}
+                    <h3>My Info
+                    <a href="{% url 'update_personal_info' %}" class="btn btn-outline-info">Update</a>
+                {% else %}
+                    <h3>{{student.name}}'s Info
+                {% endif %}
+            </h3>
+            <hr>
+            <p>Name: {{student.name}}</p>
+            <p>Date of Birth: {{student.date_of_birth}}</p>
+            <p>Address: {{student.address}}</p>
+            <p>Phone: {{student.phone}}</p>
+            <p>Major: {{student.major}}</p>
+            <p>Minor: {{student.minor}}</p>
+            <p>GPA: {{student_gpa}}</p>
+            {% if user.is_faculty %}
+                <td><a class="btn btn-info" href="{% url 'student_outline' student.id %}" >View Student Outline</a></td>
+            {% endif %}
+            <br>
+            <td><a class="btn btn-info" href="{% url 'student_report_pdf' student.id %}" target="_blank">View Student Report</a></td>
+
+        </div>
+    </div>
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>Completed Courses</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>View</th>
+                    <th>Course ID</th>
+                    <th>Grade</th>
+                    <th>Units</th>
+                </tr>
+
+                {% for comp_course in completed_courses %}
+                <tr>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_detail' comp_course.course.id %}">View</a></td>
+                    <td>{{comp_course.course}}</td>
+                    <td>{{comp_course.grade}}</td>
+                    <td>{{comp_course.course.units}}</td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row">
+    <div class="col-md">
+        <div class="card card-body">
+            <h5>Currently Enrolled In</h5>
+            <table class="table table-sm">
+                <tr>
+                    <th>View</th>
+                    <th>Course ID</th>
+                    <th>Time</th>
+                    <th>Units</th>
+                    {% if user.is_student %}
+                    <th>Drop</th>
+                    {% endif %}
+                </tr>
+
+                {% for ip_course in in_progress_courses %}
+                <tr>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'course_detail' ip_course.course.id %}">View</a></td>
+                    <td>{{ip_course.course}}</td>
+                    <td>{{ip_course.course.time}}</td>
+                    <td>{{ip_course.course.units}}</td>
+                    {% if user.is_student %}
+                    <td><a class="btn btn-sm btn-danger" href="{% url 'drop_course' ip_course.course.id %}">Drop</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

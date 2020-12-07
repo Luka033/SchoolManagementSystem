@@ -1,0 +1,25 @@
+{%  extends 'school/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<div class="row">
+	<div class="col-md">
+		<h1>Edit Outline for {{student.name}} - {{student_outline.course.course_id}}</h1>
+			<form method="POST" action="" enctype="multipart/form-data">
+				{% csrf_token %}
+				{{form.as_p}}
+				<a href="{% url 'student_outline' student.id %}" class="btn btn-outline-danger">Cancel</a>
+				<input class="btn btn-success" type="submit" name="Update Information">
+			</form>
+	</div>
+
+
+
+</div>
+
+
+
+
+
+{% endblock %}

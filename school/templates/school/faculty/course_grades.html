@@ -3,11 +3,10 @@
 {% block content %}
 
 <div class="container">
-    <h2>Student Grades</h2>
-
     {% for message in messages %}
         <p>{{message}}</p>
     {% endfor %}
+    <h2>Student Grades</h2>
 
     <div class="panel-group" id="accordion">
         {% for course, student_lst in student_course_dic.items %}
@@ -17,7 +16,8 @@
             <div class="panel-heading">
                 <h4 class="panel-title">
                     {{course.course_id}}
-                    <a data-toggle="collapse" data-parent="#accordion" href="#course-grade-{{forloop.counter}}" class="btn btn-info">
+
+                    <a data-toggle="collapse" data-toggle="tooltip" title="Edit this course" data-parent="#accordion" href="#course-grade-{{forloop.counter}}" class="btn btn-info">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                             </svg>

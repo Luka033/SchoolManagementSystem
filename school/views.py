@@ -1,3 +1,4 @@
+import pytz
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
@@ -10,7 +11,7 @@ from django.urls import reverse_lazy
 
 from .models import *
 from .forms import CourseForm, CreateUserForm, GradeForm, UpdateFacultyDetailForm, \
-    UpdateStudentDetailForm
+    UpdateStudentDetailForm, UpdateStudentOutlineForm
 from .filters import CourseFilter, FacultyFilter, StudentFilter
 
 from django.views.generic import CreateView, DetailView, ListView
@@ -157,16 +158,49 @@ def catalog_course(request):
 '''__________________________ MAJOR CATALOG view_________________________'''
 
 
-class MajorListView(ListView):
-    """ Class-based: MAJOR CATALOG view """
-    model = Major
-    template_name = 'school/catalog/major_list.html'
+# class MajorListView(DetailView):
+#     """ Class-based: MAJOR CATALOG view """
+#     model = Major
+#     context_object_name = 'major_list'
+#     template_name = 'school/catalog/major_list.html'
+#
+#     def get_context_data(self, **kwargs):
+#         # Call the base implementation first to get a context
+#         context = super().get_context_data(**kwargs)
+#
+#
+#         return context
 
 
-def majors(request):
+def catalog_major(request):
     """ Function-based: MAJOR CATALOG view """
-    majors = Major.objects.all().order_by('department')
-    return render(request, 'school/catalog/major_list.html', {'majors': majors})
+    major_list = Major.objects.all()
+
+    major_dict = {major: major.required_courses.all() for major in major_list}
+
+    return render(request, 'school/catalog/major_list.html', {'major_dict': major_dict})
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             MAJOR
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+def major_course_requirements(request):
+    return render(request, 'school/major/major_requirements.html')
+
+
+def major_requirement(request, pk):
+    major = Major.objects.get(id=pk)
+    required_courses = major.required_courses.all()
+    electives = major.electives.all()
+
+    context = {
+        'major': major,
+        'required_courses': required_courses,
+        'electives': electives
+    }
+    return render(request, 'school/catalog/major_requirements.html', context)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -193,7 +227,6 @@ def update_personal_info(request):
 
     elif request.user.is_student:
         student = request.user.student
-        print(student)
         form = UpdateStudentDetailForm(instance=student)
 
         if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
@@ -258,6 +291,90 @@ def student_detail(request, pk):
         'student_gpa': student_gpa
     }
     return render(request, 'school/student/detail.html', context)
+
+
+@login_required(login_url='login')
+def student_outline(request, pk):
+    """ Function-base: STUDENT OUTLINE view """
+
+    student = Student.objects.get(id=pk)
+    student_outline = student.student_outline_set.all()
+
+    department = student.major.department
+    possible_outline_courses = Course.objects.filter(department=department)
+
+    context = {
+        'student': student,
+        'student_outline': student_outline,
+        'possible_outline_courses': possible_outline_courses
+    }
+    return render(request, 'school/student/outline.html', context)
+
+
+@login_required(login_url='login')
+def edit_student_outline(request, pk, pk2):
+    if request.user.is_faculty:
+        faculty = request.user.faculty
+        student = Student.objects.get(id=pk2)
+        student_outline = Student_Outline.objects.get(id=pk)
+
+        form = UpdateStudentOutlineForm(instance=student_outline)
+
+        if request.method == 'POST':  # It doesn't access this condition so the updates won't occur
+            form = UpdateStudentOutlineForm(request.POST, instance=student_outline)
+            if form.is_valid():
+                student_outline.date_edited = timezone.now()
+                form.save()
+                return redirect('student_outline', student.id)
+
+    context = {
+        'form': form,
+        'student': student,
+        'student_outline': student_outline
+    }
+    return render(request, 'school/edit_student_outline.html', context)
+
+
+@login_required(login_url='login')
+def add_outline_course(request, pk, pk2):
+    course = Course.objects.get(id=pk)
+    student = Student.objects.get(id=pk2)
+    faculty_name = request.user.faculty
+
+    if Student_Outline.objects.filter(course=course).exists():
+        messages.info(request, course.course_id + " is already in the " + student.name + "'s Major outline")
+        return redirect('student_outline', student.id)
+    if Students_Course.objects.filter(course=course).exists():
+        messages.info(request, student.name + " is already enrolled in or has completed " + course.course_id)
+        return redirect('student_outline', student.id)
+    else:
+        if request.method == 'POST':
+            new_student_outline_class = Student_Outline(student=student,
+                                                        course=course,
+                                                        status="Approved",
+                                                        edited_by=faculty_name)
+            new_student_outline_class.save()
+            return redirect('student_outline', student.id)
+
+    context = {'course': course,
+               'student': student}
+    return render(request, 'school/add_outline_course.html', context)
+
+
+@login_required(login_url='login')
+def remove_outline_course(request, pk, pk2):
+    course = Course.objects.get(id=pk)
+    student = Student.objects.get(id=pk2)
+    outline_course_to_delete = Student_Outline.objects.get(course=course)
+
+    if request.method == 'POST':
+        outline_course_to_delete.delete()
+
+        return redirect('student_outline', student.id)
+
+    context = {'course': course,
+               'student': student}
+    return render(request, 'school/remove_outline_course.html', context)
 
 
 class StudentDetailView(DetailView):
@@ -421,9 +538,13 @@ def add_course(request, pk):
         student = Student.objects.get(id=user.student.id)
         completed_courses = [i.course for i in student.students_course_set.filter(status="Completed")]
 
-        # Cannot enroll if already enrolled in th section
-        if student.students_course_set.filter(course=course).exists():
-            messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
+        # Cannot enroll if student already completed this course in previous term
+        if course in completed_courses:
+            messages.info(request, 'You have already completed ' + course.course_id)
+
+        # Cannot enroll if already enrolled in this section at current term
+        elif student.students_course_set.filter(course=course).exists():
+            messages.info(request, 'You are already enrolling in ' + course.course_id)
 
         # Cannot enroll if the section is full
         elif course.seats_open == 0:
@@ -433,19 +554,24 @@ def add_course(request, pk):
         elif course.course_level == "Under-graduate" and student.major not in majors:
             messages.info(request, 'Your Major/Minor is not allowed in' + course.course_id)
 
-        # Cannot enroll if student does not meet the prerequisites:
-        elif not all(x in completed_courses for x in course.prerequisites.all()):
-            messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
-
         # Cannot enroll in Graduate course if still in undergrad
         elif course.course_level == "Graduate" and not student.graduate_student:
             messages.info(request, course.course_id + " is for Graduate students only")
+
+        # Cannot enroll if student does not meet the prerequisites:
+        elif not all(x in completed_courses for x in course.prerequisites.all()):
+            messages.info(request, 'You have not met the prerequisites for ' + course.course_id +
+                          '. Please check the prerequisites note for this course.')
 
         # Else allow student to enroll
         else:
             new_student_class = Students_Course(student=student, course=course, status="In Progress")
             new_student_class.save()
-            course.seats_open -= 1
+
+            # Seats_open cannot be negative
+            if course.seats_open > 0:
+                course.seats_open -= 1
+
             course.save()
             messages.info(request, 'Successfully enrolled in ' + course.course_id)
 
@@ -462,18 +588,22 @@ def drop_course(request, pk):
     user = request.user
     student = Student.objects.get(id=user.student.id)
     course = Course.objects.get(id=pk)
-
-    class_to_drop = student.students_course_set.filter(course=course)
-    # num_students = Students_Course.objects.filter(course=course).count()
+    class_to_drop = student.students_course_set.get(course=pk)
 
     if request.method == 'POST':
         class_to_drop.delete()
-        course.seats_open += 1
+
+        # Seats_open cannot be greater than capacity
+        if course.seats_open <= course.capacity:
+            course.seats_open += 1
+
         course.save()
+        messages.info(request, 'Successfully dropped ' + course.course_id)
+        return redirect('student_schedule', user.student.id)
 
-        return redirect('student_home')
-
-    context = {'course': course}
+    context = {
+        'course': course
+    }
     return render(request, 'school/course/drop_course.html', context)
 
 
@@ -484,21 +614,24 @@ def drop_course(request, pk):
 def end_course(request, pk):
     course = Course.objects.get(id=pk)
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         student_list = Students_Course.objects.filter(course=course)
-
         for student in student_list:
-            if student.grade is None:
+            if str(student.status) == str("Completed"):
+                messages.info(request, 'This class is already ended')
+                return redirect('course_grades', request.user.faculty.id)
+
+            elif student.grade is None:
                 messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
                                                               'before you can end the course')
-                return redirect('course_grades')
-            else:
+                return redirect('course_grades', request.user.faculty.id)
 
+            else:
                 student.status = "Completed"
-                print("STUDENT STATUS FOR COURSE: ", student.status)
+                messages.info(request, 'You have successfully ended ' + course.course_id)
                 student.save()
 
-        return redirect('course_grades')
+        return redirect('course_grades', request.user.faculty.id)
 
     context = {'course': course}
     return render(request, 'school/course/end_course.html', context)
@@ -513,7 +646,10 @@ def course_statistics(request, pk):
     student_list = Students_Course.objects.filter(course=course)
     grades = list(student_list.values("grade"))
     average_digit_grade = grade_converter(grades)
-    average_letter_grade = grade_digit_to_letter(average_digit_grade)
+    if len(grades) != 0:
+        average_letter_grade = grade_digit_to_letter(average_digit_grade)
+    else:
+        average_letter_grade = None
 
     num_passing_grade = student_list.exclude(grade="F").exclude(grade=None).count()
     num_of_students = course.capacity - course.seats_open
@@ -548,19 +684,36 @@ New Section:                             GRADE
 
 
 @login_required(login_url='login')
-def course_grades(request):
-    faculty = request.user.faculty
-    courses = faculty.course_set.all()
+def course_grades(request, pk):
+    user = request.user
 
-    student_course_dic = {}
-    for course in courses:
-        student_list = Students_Course.objects.filter(course=course)
-        student_course_dic[course] = student_list
+    if user.is_faculty:
+        faculty = user.faculty
+        courses = faculty.course_set.all()
 
-    context = {
-        'student_course_dic': student_course_dic
-    }
-    return render(request, 'school/course/course_grades.html', context)
+        student_course_dic = {}
+        for course in courses:
+            student_list = Students_Course.objects.filter(course=course)
+            student_course_dic[course] = student_list
+            context = {
+                'student_course_dic': student_course_dic
+            }
+
+        return render(request, 'school/faculty/course_grades.html', context)
+
+    elif user.is_student:
+        student = user.student
+        student_course_query = Students_Course.objects.filter(student=student)
+
+        course_list_query = list(student_course_query.values("course"))
+        course_list = [Course.objects.get(id=item["course"]) for item in course_list_query]
+        grade_list = [item["grade"] for item in list(student_course_query.values("grade"))]
+
+        context = {
+            'grade_dict': dict(zip(course_list, grade_list))
+        }
+
+        return render(request, 'school/student/grades.html', context)
 
 
 '''_____________________________ UPDATE Grade view _________________________________'''
@@ -573,7 +726,7 @@ def update_grade(request, pk):
         form = GradeForm(request.POST, instance=student_course)
         if form.is_valid():
             form.save()
-            return redirect('course_grades')
+            return redirect('course_grades', request.user.faculty.id)
 
     context = {
         'form': form,
@@ -616,32 +769,11 @@ def grade_converter(student_grades):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-New Section:                             MAJOR
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-def major_course_requirements(request):
-    return render(request, 'school/major/major_requirements.html')
-
-
-def major_requirements_details(request, pk):
-    major = Major.objects.get(id=pk)
-    required_courses = major.required_courses.all()
-    electives = major.electives.all()
-    context = {'major': major,
-               'required_courses': required_courses,
-               'electives': electives
-               }
-    return render(request, 'school/major/major_requirements_details.html', context)
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 New Section:                             PDF Report
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 def render_to_pdf(template_src, context_dict={}):
-
     template = get_template(template_src)
     html = template.render(context_dict)
     result = BytesIO()
@@ -688,26 +820,18 @@ def get_grade_sheet_data(request, pk):
     student_list = Students_Course.objects.filter(course=course)
 
     data = {
-        "course_ID": course.course_id,
-        "name": course.name,
-
-        "department": course.department,
-        "schedule_number": course.schedule_number,
-        "instructor": course.instructor,
-        "units": course.units,
-
-        "start_date": course.start_date,
-        "end_date": course.end_date,
-        "time": course.time,
-
-        "student_list": student_list,
+        'course': course,
+        'student_list': student_list,
+        'total_students': len(student_list),
     }
+
     return data
 
 
 # Opens up page as PDF
 class grade_sheet_pdf(View):
     def get(self, request, pk, *args, **kwargs):
-
+        data = get_grade_sheet_data(request, pk)
         pdf = render_to_pdf('school/grade_sheet_pdf.html', get_grade_sheet_data(request, pk))
-        return HttpResponse(pdf, content_type='application/pdf')
+
+        return HttpResponse(pdf, content_type='application/pdf' )

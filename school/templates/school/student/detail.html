@@ -4,30 +4,29 @@
 
 <br>
 
-<div class=""
+<div class="">
     <div class="">
+        <a class="" href="{% url 'student_report_pdf' student.id %}" target="_blank">Print Report</a>
         <div class="card card-body">
-            <h3>My Info
-                {% if user.is_student %}
-                    <a href="{% url 'update_personal_info' %}" class="btn btn-outline-info">Update</a>
-                {% endif %}
-            </h3>
+            <h3>{{student.name}}</h3>
+            <p>
+            {% if user.is_student %}
+                <a href="{% url 'update_personal_info' %}" class="btn btn-outline-info">Update</a>
+            {% elif user.is_faculty %}
+                <a class="btn btn-outline-primary" href="{% url 'student_outline' student.id %}" >Edit Student Outline</a>
+            {% endif %}
+            </p>
             <hr>
-            <p>Name: {{student.name}}</p>
             <p>Date of Birth: {{student.date_of_birth}}</p>
             <p>Address: {{student.address}}</p>
             <p>Phone: {{student.phone}}</p>
             <p>Major: {{student.major}}</p>
             <p>Minor: {{student.minor}}</p>
             <p>GPA: {{student_gpa}}</p>
-            <td><a class="btn btn-info" href="{% url 'student_report_pdf' student.id %}" target="_blank">View Student Report</a></td>
 
         </div>
     </div>
 
 </div>
 
-
-
-
-{% endblock %}
+{% endblock content%}

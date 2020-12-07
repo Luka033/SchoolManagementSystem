@@ -8,8 +8,6 @@
 		<div class="card card-body">
 			<form method="get">
 <!--			{{filter.form.as_p}}-->
-			{{filter.form.major.label}}
-			<a data-toggle="tooltip" title="Search by student Major">{{filter.form.major}}</a>
 			<br>
 			{{filter.form.name.label}}
 			<a data-toggle="tooltip" title="Search by student name [First Last]">{{filter.form.name}}</a>
@@ -19,6 +17,10 @@
 			<br>
 			{{filter.form.address.label}}
 			<a data-toggle="tooltip" title="Search by student address">{{filter.form.address}}</a>
+			<br>
+
+				{{filter.form.major.label}}
+			<a data-toggle="tooltip" title="Search by student Major">{{filter.form.major}}</a>
 			<br>
 			{{filter.form.minor.label}}
 			<a data-toggle="tooltip" title="Search by student Major">{{filter.form.minor}}</a>
@@ -39,14 +41,16 @@
 			<table class="table table-sm">
 				<tr>
 					<th>Name</th>
+					<th>DOB</th>
 					<th>Major</th>
                     <th>Minor</th>
 				</tr>
 
 				{% for student in student_list %}
 					<tr>
-						<td><a class="btn btn-sm btn-info" href="{% url 'student_detail' student.id %}">View</a></td>
-						<td>{{student.name}}</td>
+						<td><a class="" href="{% url 'student_detail' student.id %}">{{student.name}}</a></td>
+
+						<td>{{student.date_of_birth}}</td>
 						<td>{{student.major}}</td>
                         <td>{{student.minor}}</td>
 					</tr>

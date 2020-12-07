@@ -22,6 +22,7 @@ admin.site.register(Student)
 admin.site.register(Faculty)
 admin.site.register(Course)
 admin.site.register(Students_Course)
+admin.site.register(Student_Outline)
 admin.site.register(Department)
 admin.site.register(Major)
 

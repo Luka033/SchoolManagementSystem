@@ -69,9 +69,6 @@ nav li > a:hover:after{
 
         </ul>
         {% if user.is_authenticated %}
-        <a class="navbar-brand" href="" data-toggle="tooltip" title="Horay!&#013;">
-            <img src="{% static 'assets/images/help-logo.png' %}" alt="My image" width="40" height="40" >
-        </a>
         <a href="{% url 'logout' %}" class="btn btn-outline-light">Logout</a>
         {% endif %}
 
