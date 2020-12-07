@@ -646,6 +646,7 @@ def course_statistics(request, pk):
     course = Course.objects.get(id=pk)
     student_list = Students_Course.objects.filter(course=course)
     grades = list(student_list.values("grade"))
+    print("GRADES: ", grades)
     average_digit_grade = grade_converter(grades)
     if len(grades) != 0:
         average_letter_grade = grade_digit_to_letter(average_digit_grade)
