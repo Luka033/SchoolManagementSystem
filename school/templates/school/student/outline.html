@@ -59,7 +59,6 @@
 					<th>Time</th>
 					<th>Instructor</th>
 					<th>Units</th>
-					<th>Seats</th>
 					<th>Add</th>
 				</tr>
 
@@ -67,11 +66,10 @@
 					<tr>
 						<td><a class="btn btn-sm btn-info" href="{% url 'course_detail' course.id %}">View</a></td>
 						<td>{{course.course_id}}</td>
-						<td>{{course.name}}</td>
+						<td>{{course.title}}</td>
 						<td>{{course.time}}</td>
 						<td>{{course.instructor}}</td>
 						<td>{{course.units}}</td>
-						<td>{{course.seats_occupied}} / {{course.seats_available}}</td>
 						<td><a class="btn btn-sm btn-success" href="{% url 'add_outline_course' pk=course.id pk2=student.id %}">Add to Outline</a></td>
 					</tr>
 				{% endfor %}

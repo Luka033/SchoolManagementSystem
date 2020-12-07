@@ -615,21 +615,21 @@ def drop_course(request, pk):
 def end_course(request, pk):
     course = Course.objects.get(id=pk)
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         student_list = Students_Course.objects.filter(course=course)
 
         for student in student_list:
             if student.grade is None:
                 messages.info(request, student.student.name + 'does not have a grade. All students must have a grade '
                                                               'before you can end the course')
-                return redirect('course_grades', pk)
+                return redirect('course_grades', request.user.faculty.id)
             else:
 
                 student.status = "Completed"
-                print("STUDENT STATUS FOR COURSE: ", student.status)
+                messages.info(request, 'You have successfully ended ' + course.course_id)
                 student.save()
 
-        return redirect('course_grades', pk)
+        return redirect('course_grades', request.user.faculty.id)
 
     context = {'course': course}
     return render(request, 'school/course/end_course.html', context)
@@ -644,7 +644,10 @@ def course_statistics(request, pk):
     student_list = Students_Course.objects.filter(course=course)
     grades = list(student_list.values("grade"))
     average_digit_grade = grade_converter(grades)
-    average_letter_grade = grade_digit_to_letter(average_digit_grade)
+    if len(grades) != 0:
+        average_letter_grade = grade_digit_to_letter(average_digit_grade)
+    else:
+        average_letter_grade = None
 
     num_passing_grade = student_list.exclude(grade="F").exclude(grade=None).count()
     num_of_students = course.capacity - course.seats_open
