@@ -122,6 +122,10 @@ class Students_Course(models.Model):
         ('D', 'D'),
         ('F', 'F'),
     )
+    TERM = (
+        ('SP19', 'SP19'),
+        ('FA19', 'Fa')
+    )
 
     student = models.ForeignKey(Student, null=True, on_delete=models.SET_NULL)
     university = models.CharField(max_length=200, null=True, blank=True, default="San Diego State University")

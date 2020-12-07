@@ -25,7 +25,6 @@ from django.views import View
 from xhtml2pdf import pisa
 
 
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 New Section:                            SIGN UP
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -159,16 +158,49 @@ def catalog_course(request):
 '''__________________________ MAJOR CATALOG view_________________________'''
 
 
-class MajorListView(ListView):
-    """ Class-based: MAJOR CATALOG view """
-    model = Major
-    template_name = 'school/catalog/major_list.html'
+# class MajorListView(DetailView):
+#     """ Class-based: MAJOR CATALOG view """
+#     model = Major
+#     context_object_name = 'major_list'
+#     template_name = 'school/catalog/major_list.html'
+#
+#     def get_context_data(self, **kwargs):
+#         # Call the base implementation first to get a context
+#         context = super().get_context_data(**kwargs)
+#
+#
+#         return context
 
 
-def majors(request):
+def catalog_major(request):
     """ Function-based: MAJOR CATALOG view """
-    majors = Major.objects.all().order_by('department')
-    return render(request, 'school/catalog/major_list.html', {'majors': majors})
+    major_list = Major.objects.all()
+
+    major_dict = {major: major.required_courses.all() for major in major_list}
+
+    return render(request, 'school/catalog/major_list.html', {'major_dict': major_dict})
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+New Section:                             MAJOR
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+def major_course_requirements(request):
+    return render(request, 'school/major/major_requirements.html')
+
+
+def major_requirement(request, pk):
+    major = Major.objects.get(id=pk)
+    required_courses = major.required_courses.all()
+    electives = major.electives.all()
+
+    context = {
+        'major': major,
+        'required_courses': required_courses,
+        'electives': electives
+    }
+    return render(request, 'school/catalog/major_requirements.html', context)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -279,6 +311,7 @@ def student_outline(request, pk):
     }
     return render(request, 'school/student/outline.html', context)
 
+
 @login_required(login_url='login')
 def edit_student_outline(request, pk, pk2):
     if request.user.is_faculty:
@@ -328,6 +361,7 @@ def add_outline_course(request, pk, pk2):
                'student': student}
     return render(request, 'school/add_outline_course.html', context)
 
+
 @login_required(login_url='login')
 def remove_outline_course(request, pk, pk2):
     course = Course.objects.get(id=pk)
@@ -342,6 +376,7 @@ def remove_outline_course(request, pk, pk2):
     context = {'course': course,
                'student': student}
     return render(request, 'school/remove_outline_course.html', context)
+
 
 class StudentDetailView(DetailView):
     model = Student
@@ -686,7 +721,7 @@ def update_grade(request, pk):
         form = GradeForm(request.POST, instance=student_course)
         if form.is_valid():
             form.save()
-            return redirect('course_grades')
+            return redirect('course_grades', request.user.faculty.id)
 
     context = {
         'form': form,
@@ -726,117 +761,6 @@ def grade_converter(student_grades):
         return gpa / len(student_grades)
     else:
         return 0.0
-
-
-"""
-____________________________________________________________________________
-                                COURSE
-____________________________________________________________________________
-"""
-
-
-class CourseListView(ListView):
-    model = Course
-    template_name = 'catalog/courses_list.html'
-
-#
-# @login_required(login_url='login')
-# def course_registration(request):
-#     courses = Course.objects.all()
-#
-#     my_filter = CourseFilter(request.GET, queryset=courses)
-#     courses = my_filter.qs
-#     context = {'courses': courses,
-#                'filter': my_filter
-#                }
-#     return render(request, 'school/course_registration.html', context)
-#
-#
-# @login_required(login_url='login')
-# def add_course(request, pk):
-#     course = Course.objects.get(id=pk)
-#     id = request.user.student.id
-#     student = Student.objects.get(id=id)
-#     completed_courses = []
-#     prereq = course.prerequisites.all()
-#     students_completed_courses = student.students_course_set.filter(status="Completed")
-#     for i in students_completed_courses:
-#         completed_courses.append(i.course)
-#
-#     if student.students_course_set.filter(course=course).exists():
-#         messages.info(request, 'You are already enrolled or have completed ' + course.course_id)
-#         return redirect('course_registration')
-#
-#     if course.seats_occupied + 1 > course.seats_available:
-#         messages.info(request, course.course_id + " has no available seats")
-#         return redirect('course_registration')
-#
-#     majors = course.required_by_majors.all()
-#     if course.course_level == "Upper-division" and majors:
-#         if student.major not in majors:
-#             messages.info(request, course.course_id + " is restricted to students of that declared major only")
-#             return redirect('course_registration')
-#
-#     if course.course_level == "Graduate" and not student.graduate_student:
-#         messages.info(request, course.course_id + " is for Graduate students only")
-#         return redirect('course_registration')
-#
-#     if not all(x in completed_courses for x in prereq):
-#         messages.info(request, 'You have not met the prerequisites for ' + course.course_id)
-#         return redirect('course_registration')
-#     else:
-#         if request.method == 'POST':
-#             new_student_class = Students_Course(student=student, course=course, status="In Progress")
-#             new_student_class.save()
-#
-#             course.seats_occupied += 1
-#             course.save()
-#
-#             return redirect('course_registration')
-#
-#     context = {'course': course}
-#     return render(request, 'school/add_course.html', context)
-#
-#
-# @login_required(login_url='login')
-# def drop_course(request, pk):
-#     course = Course.objects.get(id=pk)
-#     id = request.user.student.id
-#     student = Student.objects.get(id=id)
-#     class_to_drop = student.students_course_set.filter(course=course)
-#     num_students = Students_Course.objects.filter(course=course).count()
-#
-#     if request.method == 'POST':
-#         class_to_drop.delete()
-#
-#         course.seats_occupied = num_students - 1
-#         course.save()
-#
-#         return redirect('student_home')
-#
-#     context = {'course': course}
-#     return render(request, 'school/drop_course.html', context)
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-New Section:                             MAJOR
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-
-def major_course_requirements(request):
-    return render(request, 'school/major/major_requirements.html')
-
-
-def major_requirements_details(request, pk):
-    major = Major.objects.get(id=pk)
-    required_courses = major.required_courses.all()
-    electives = major.electives.all()
-    context = {'major': major,
-               'required_courses': required_courses,
-               'electives': electives
-               }
-    return render(request, 'school/major/major_requirements_details.html', context)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

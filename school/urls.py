@@ -16,8 +16,8 @@ urlpatterns = [
     path('catalog/course_list/', views.catalog_course, name='catalog_course'),
     path('catalog/course/<int:pk>', views.course_details, name='course_detail'),
     path('catalog/student_list/', views.catalog_student, name='catalog_student'),
-    path('catalog/major_list/', views.MajorListView.as_view(), name='catalog_major'),
-    path('catalog/major_requirements/<int:pk>', views.major_requirements_details, name='major_requirements_details'),
+    path('catalog/major_list/', views.catalog_major, name='catalog_major'),
+    path('catalog/major_requirements/<int:pk>', views.major_requirement, name='major_requirement'),
 
     path('faculty_home/', views.faculty_home, name='faculty_home'),
     path('faculty/detail/<int:pk>', views.faculty_detail, name='faculty_detail'),
